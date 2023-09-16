@@ -28,6 +28,8 @@ SRCS			=	main.cpp \
 						$(addprefix utils/, \
 							utils.cpp \
 						) \
+						Channel.cpp \
+						Client.cpp \
 						Server.cpp \
 					)
 
