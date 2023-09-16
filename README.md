@@ -18,13 +18,17 @@ run with:
 $> ./irc <port>
 ```
 
+### Notes
+
+port `0` = random port.
+
 ## Code architecture (WIP)
 
 - `./server` is the folder that contains all the server code (`.cpp` files only).
 
 - `./include` is the folder that contains all the includes (`.hpp`, `.tpp`) needed by the `.cpp` files in the `./server` folder.
 
-- Yes the `./include` folder contains nested folders, be cautious in the makefile to specify the right one (NOT a file).
+- Yes the `./include` folder contains nested folders, be cautious in the makefile to specify the right one (ONLY folders).
 
 - In each `.cpp` files it's necessary to include the relative path from the file to the header file.
 

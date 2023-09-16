@@ -34,7 +34,7 @@ bool parseArgs(int argc, char** argv, unsigned int *port, std::string *password)
 	int p = parsePort(argv[1]);
 	std::string pass = parsePassword(argv[2]);
 
-	if (p == -1 || pass.length() < 1) {
+	if (p <= 0 || pass.length() < 1) {
 		return false;
 	}
 
