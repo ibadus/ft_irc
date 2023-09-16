@@ -229,10 +229,10 @@ scan-build:
 
 cppcheck:
 	@mkdir -p build/cppcheck
-	@cppcheck --cppcheck-build-dir=build/cppcheck --check-config --enable=all --xml $(SRCS) $(INCLUDE_FLAGS) 2> build/cppcheck/cppcheck.xml
+	cppcheck --cppcheck-build-dir=build/cppcheck/ --check-config --enable=all --suppress=missingIncludeSystem --xml $(SRCS) $(INCLUDE_FLAGS) 2> build/cppcheck/cppcheck.xml
 
 cppcheck-htmlreport: cppcheck
-	@cppcheck-htmlreport --file=build/cppcheck/cppcheck.xml --report-dir=build/cppcheck/cppcheck-htmlreport --source-dir=build/cppcheck --title=IRCserv
+	@cppcheck-htmlreport --file=build/cppcheck/cppcheck.xml --report-dir=build/cppcheck/cppcheck-htmlreport/ --title=IRCserv
 	@open build/cppcheck/cppcheck-htmlreport/index.html
 
 #do nothing
