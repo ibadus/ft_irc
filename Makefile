@@ -216,8 +216,21 @@ show:		header
 		@echo ""
 		@echo "$(CYAN)Libs:$(NO_COLOR)"
 		@echo "$(GREEN)$(ALL_LIBS)$(NO_COLOR)"
+
 nm:
 	@nm -DA  $(NAME)
+
+scan-build:
+	@mkdir -p build/scan-build
+	@scan-build --use-cc=$(CC) --use-c++=$(CC) --status-bugs -stats -internal-stats -o build/scan-build $(MAKE) all
+
+cppcheck:
+	@mkdir -p build/cppcheck
+	@cppcheck --cppcheck-build-dir=build/cppcheck --check-config --enable=all --xml $(SRCS) $(INCLUDE_FLAGS) 2> build/cppcheck/cppcheck.xml
+
+cppcheck-htmlreport: cppcheck
+	@cppcheck-htmlreport --file=build/cppcheck/cppcheck.xml --report-dir=build/cppcheck/cppcheck-htmlreport --source-dir=build/cppcheck --title=IRCserv
+	@open build/cppcheck/cppcheck-htmlreport/index.html
 
 #do nothing
 noflag: 	all
@@ -232,4 +245,4 @@ santhread:	all
 reset:
 		@$(call clean)
 		
-.PHONY:		all header clean fclean re run noflag debug sanadd santhread show reset
+.PHONY:		all header clean fclean re run show nm scan-build cppcheck cppcheck-htmlreport noflag debug sanadd santhread show reset
