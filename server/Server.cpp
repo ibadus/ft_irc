@@ -1,5 +1,7 @@
 #include "../include/server/Server.hpp"
 
+#include <string>
+
 Server::Server() {
 	this->password = "";
 	this->port = 0;
