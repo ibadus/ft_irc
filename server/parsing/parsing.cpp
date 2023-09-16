@@ -1,4 +1,5 @@
 #include "../../include/server/parsing/parsing.hpp"
+#include "../../include/server/utils/utils.hpp"
 
 #include <string>
 
@@ -15,14 +16,14 @@ static int parsePort(std::string port) {
 		return -1;
 	}
 
-	for (int i = 0; i < port.length(); i++) {
+	for (size_t i = 0; i < port.length(); i++) {
 		if (std::isdigit(port[i]) == false)
 			return -1;
 		if (i > 5)
 			return -1;
 	}
 
-	return std::atoi(port.c_str());
+	return toInt(port.c_str());
 }
 
 bool parseArgs(int argc, char** argv, unsigned int *port, std::string *password) {
