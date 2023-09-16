@@ -13,8 +13,9 @@ RUN_PARAM	=
 ################################################################################
 
 SRCS_EXTENSION	=	.cpp
-SRCS			=	./main.cpp \
-					$(addprefix ./server/, \
+SRCS_PATH		=	.
+SRCS			=	main.cpp \
+					$(addprefix server/, \
 						$(addprefix parsing/, \
 							parsing.cpp \
 						) \
