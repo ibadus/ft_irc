@@ -4,6 +4,6 @@
 #include <string>
 
 bool parsePassword(std::string password);
-bool parsePort(std::string port);
+int parsePort(std::string port);
 
 #endif

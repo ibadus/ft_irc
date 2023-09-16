@@ -1,5 +1,7 @@
 #include "../../include/server/parsing/parsing.hpp"
 
+#include <string>
+
 bool parsePassword(std::string password) {
 	if (password.length() < 1) {
 		return false;
@@ -8,14 +10,17 @@ bool parsePassword(std::string password) {
 	return true;
 }
 
-bool parsePort(std::string port) {
+int parsePort(std::string port) {
 	if (port.length() < 1) {
-		return false;
+		return -1;
 	}
 
-	// TODO: check if port is a number
+	for (int i = 0; i < port.length(); i++) {
+		if (std::isdigit(port[i]) == false)
+			return -1;
+		if (i > 5)
+			return -1;
+	}
 
-	// TODO: check if port is used
-
-	return true;
+	return std::atoi(port.c_str());
 }
