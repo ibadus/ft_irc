@@ -217,7 +217,7 @@ show:		header
 		@echo "$(CYAN)Libs:$(NO_COLOR)"
 		@echo "$(GREEN)$(ALL_LIBS)$(NO_COLOR)"
 nm:
-	@nm -D  $(NAME)
+	@nm -DA  $(NAME)
 
 #do nothing
 noflag: 	all
