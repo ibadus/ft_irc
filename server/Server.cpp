@@ -19,7 +19,7 @@ int Server::getPort() {
 	return this->port;
 }
 
-void Server::start(int port, std::string password) {
-	this->password = password;
+void Server::start(const int port, const std::string &password) {
+	this->password = password.c_str();
 	this->port = port;
 }

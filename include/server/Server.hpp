@@ -11,7 +11,7 @@ class Server {
 		std::string getPassword();
 		int getPort();
 
-		void start(int port, std::string password);
+		void start(const int port, const std::string &password);
 
 	private:
 		std::string password;
