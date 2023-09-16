@@ -3,7 +3,6 @@
 
 #include <string>
 
-bool parsePassword(std::string password);
-int parsePort(std::string port);
+bool parseArgs(int argc, char** argv, unsigned int *port, std::string *password);
 
 #endif
