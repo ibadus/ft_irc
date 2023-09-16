@@ -18,6 +18,9 @@ SRCS			=	./main.cpp \
 						$(addprefix parsing/, \
 							parsing.cpp \
 						) \
+						$(addprefix signals/, \
+							sigInt.cpp \
+						) \
 						Server.cpp \
 					)
 
@@ -26,10 +29,11 @@ SRCS			=	./main.cpp \
 ################################################################################
 
 INCLUDE_DIRS		=	$(addprefix ./include/, \
+							server \
 							$(addprefix server/, \
 								parsing \
+								signals \
 							) \
-							server \
 						)
 
 #               /!\ Do not touch the rest of the file /!\ 
