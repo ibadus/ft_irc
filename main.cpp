@@ -1,14 +1,14 @@
-#include <iostream>
+#include "./include/server/parsing/parsing.hpp"
 
+#include <iostream>
+#include <string>
 
 int main(int argc, char** argv) {
-	std::cout << "[DEBUG] " << argc << std::endl;
-	for (int i = 0; i < argc; i++) {
-		std::cout << "\t[" << i << "] - " << argv[i] << std::endl;
-	}
+	unsigned int port;
+	std::string password;
 
-	if (argc != 3) {
-		std::cerr << "Usage: " << argv[0] << " <port> <password>" << std::endl;
+	if (!parseArgs(argc, argv, &port, &password)) {
+		std::cerr << "Error: Invalid arguments. Use the following format :\n" << argv[0] << " <port> <password>" << std::endl;
 		return 1;
 	}
 
