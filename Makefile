@@ -21,6 +21,9 @@ SRCS			=	./main.cpp \
 						$(addprefix signals/, \
 							sigInt.cpp \
 						) \
+						$(addprefix utils/, \
+							utils.cpp \
+						) \
 						Server.cpp \
 					)
 
@@ -33,6 +36,7 @@ INCLUDE_DIRS		=	$(addprefix ./include/, \
 							$(addprefix server/, \
 								parsing \
 								signals \
+								utils \
 							) \
 						)
 
