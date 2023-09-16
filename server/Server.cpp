@@ -1,4 +1,4 @@
-#include "../include/server/Server.hpp"
+#include "Server.hpp"
 
 #include <string>
 

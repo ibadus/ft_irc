@@ -1,4 +1,4 @@
-#include "../../include/server/utils/utils.hpp"
+#include "utils.hpp"
 
 #include <string>
 #include <sstream>

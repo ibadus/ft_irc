@@ -1,4 +1,4 @@
-#include "../../include/server/signals/signals.hpp"
+#include "signals.hpp"
 
 #include <iostream>
 

@@ -1,5 +1,5 @@
-#include "../../include/server/parsing/parsing.hpp"
-#include "../../include/server/utils/utils.hpp"
+#include "parsing.hpp"
+#include "utils.hpp"
 
 #include <string>
 
