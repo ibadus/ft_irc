@@ -20,6 +20,7 @@ SRCS			=	main.cpp \
 							parsing.cpp \
 						) \
 						$(addprefix signals/, \
+							signals.cpp \
 							sigInt.cpp \
 						) \
 						$(addprefix socket/, \
