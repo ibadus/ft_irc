@@ -2,7 +2,7 @@
 
 ## Description
 
-42 project: IRC server.
+42 project: IRC server. Based on irssi.
 
 ## Usage
 
