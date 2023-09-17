@@ -10,7 +10,7 @@ enum te_status {
 /*
 * 0 = stop, 1 = run, 2 = restart
 *
-* initalized to 0 in Server.cpp and 1 in server.start() method
+* initalized to 1 in server.start() method
 *
 * Note: state of the server needs to be global to be accessed by the signal handler
 */
