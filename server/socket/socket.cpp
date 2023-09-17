@@ -40,9 +40,12 @@ static int startSocket(unsigned int port) {
 		return -1;
 
 	int opt = 1; // enable reuse of address
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	struct sockaddr_in6 address = getAddress(port);
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		close(fd); // close socket
+		return -1;
+	}
 
+	struct sockaddr_in6 address = getAddress(port);
 	if (bind(fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
 		close(fd); // close socket
 		return -2;
