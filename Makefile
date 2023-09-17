@@ -16,6 +16,9 @@ SRCS_EXTENSION	=	.cpp
 SRCS_PATH		=	.
 SRCS			=	main.cpp \
 					$(addprefix server/, \
+						$(addprefix commands/, \
+							handler.cpp \
+						) \
 						$(addprefix parsing/, \
 							parsing.cpp \
 						) \
@@ -41,6 +44,10 @@ SRCS			=	main.cpp \
 INCLUDE_DIRS		=	$(addprefix ./include/, \
 							server \
 							$(addprefix server/, \
+								commands \
+								$(addprefix commands/, \
+									messages \
+								) \
 								parsing \
 								signals \
 								socket \
