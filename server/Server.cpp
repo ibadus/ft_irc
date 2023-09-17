@@ -5,16 +5,21 @@
 #include "utils.hpp"
 #include "signals.hpp"
 #include "status.hpp" // global_status
+#include "commands.hpp"
 
 #include <string>
 #include <iostream>
 #include <exception>
-#include <unistd.h>
+#include <unistd.h> // close
 #include <sys/epoll.h>
+#include <sys/socket.h> // accept
+#include <netinet/in.h> // sockaddr_in
+#include <arpa/inet.h> // inet_ntoa
+#include <fcntl.h> // fcntl
 
 te_status global_status = e_STOP;
 
-Server::Server(const unsigned int port, const std::string &password): _password(password.c_str()), _port(port), _socket_fd(0), _clients(std::vector<Client>(0)), _channels(std::vector<Channel>(0)) {
+Server::Server(const unsigned int port, const std::string &password): _password(password.c_str()), _port(port), _socket_fd(0), _events(std::vector<struct epoll_event>(EPOLL_MAX_EVENTS)) {
 	this->_socket_fd = initSocket(this->_port);
 	if (this->_socket_fd < 0)
 		throw std::runtime_error("Could not start server.");
@@ -28,16 +33,37 @@ Server::~Server() {
 
 void Server::flush() {
 	std::cout << TEXT_YELLOW << "Flushing..." << TEXT_RESET << std::endl;
-	// TODO: warn connected users ?
 
 	// TODO: clean epoll
 	this->_epoll_fd < 0 ? close(this->_epoll_fd) : 0;
 	this->_event_count = 0;
 
-	// TODO: disconnect clients
-	this->_clients.clear();
+	this->disconnectAllClients();
 	// TODO: delete channels
 	this->_channels.clear();
+}
+
+void Server::disconnectClient(const int fd) {
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getFD() == fd) {
+			it->disconnect();
+			this->_clients.erase(it);
+			break;
+		}
+	}
+}
+
+void Server::disconnectAllClients() {
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		it->disconnect();
+	}
+	this->_clients.clear();
+}
+
+void Server::sendMsgToAll(std::string msg) {
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		it->sendMsg(msg);
+	}
 }
 
 bool Server::initEpoll() {
@@ -51,7 +77,7 @@ bool Server::initEpoll() {
 	this->_event.events = EPOLLIN;
 	this->_event.data.fd = this->_socket_fd;
 
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &(this->_event))) {
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &(_event))) {
 		std::cerr << "Error: epoll_ctl error" << std::endl;
 		global_status = e_STOP;
 		return false;
@@ -64,10 +90,44 @@ bool Server::handlePolling() {
 	this->_event_count = 0;
 
 	while (global_status == e_RUN) {
-		this->_event_count = epoll_wait(this->_epoll_fd, this->_events, EPOLL_MAX_EVENTS, -1);
+		this->_event_count = epoll_wait(this->_epoll_fd, &(this->_events[0]), static_cast<int>(this->_events.size()), -1);
+
+		if (this->_event_count < 0) {
+			std::cerr << "Error: epoll_wait error" << std::endl;
+			global_status = e_STOP;
+			return false;
+		}
+
+		// if we are hitting the events limit, resize it; even without resizing, the subsequent
+		// calls would round-robin through the remaining ready sockets, but it's better to give
+		// the call enough room once we start hitting the boundary
+		if (this->_event_count >= static_cast<int>(this->_events.size()))
+			this->_events.resize(this->_events.size() * 2);
+
 		for (int i = 0; i < this->_event_count; i++) {
-			if (this->_events[i].data.fd == this->_socket_fd && this->_events[i].events & EPOLLIN && global_status == e_RUN) {
-				// TODO: handle new connection
+			// TODO: if ptr is defined on new connection and not after then use 'if (_events[i].data.ptr)' instead of 'if (this->_events[i].data.fd == this->_socket_fd)' below
+			// check line poco/PollSet.cpp:205
+			std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
+			std::cout << "[DEBUG] event fd=" << this->_events[i].data.fd << " | socket fd=" << this->_socket_fd << " | epoll fd=" << this->_epoll_fd << std::endl; // TODO: remove
+
+			if (global_status == e_RUN) {
+				if (this->_events[i].data.fd == this->_socket_fd) {
+					this->handleNewConnection(this->_events[i]);
+				} else if (this->_events[i].events & EPOLLIN) {
+					this->handleMessages(this->_events[i].data.fd);
+				} else if (this->_events[i].events & EPOLLRDHUP || this->_events[i].events & EPOLLHUP) {
+					std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
+					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, this->_events[i].data.fd, NULL);
+					this->disconnectClient(this->_events[i].data.fd);
+					close(this->_events[i].data.fd);
+					continue;
+				} else {
+					if (this->_events[i].events == EPOLLERR)
+						std::cerr << TEXT_YELLOW << "Error: event EPOLLERR, continuing..." << TEXT_RESET << std::endl;
+					else
+						std::cerr << TEXT_YELLOW << "Error: event '" << this->_events[i].events << "' (unknown), continuing..." << TEXT_RESET << std::endl;
+					continue;
+				}
 			}
 		}
 	}
@@ -75,11 +135,81 @@ bool Server::handlePolling() {
 	return true;
 }
 
+bool Server::handleNewConnection(struct epoll_event event) {
+	struct sockaddr_in client_addr; // sockaddr_in6 is not needed to work even with ipv6 socket
+	socklen_t client_addr_len = sizeof(client_addr);
+
+	int client_fd = accept(event.data.fd, (struct sockaddr *)&client_addr, &client_addr_len);
+	if (client_fd < 0) {
+		std::cerr << "Error: Failed to accept new connection" << std::endl;
+		return false;
+	}
+
+	struct epoll_event client_event = {
+		.events =  EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR, // every events supported (?)
+		.data = {
+			.fd = client_fd
+		}
+	};
+
+	// set non-blocking socket as we set it to edge to avoid infinite block on next epoll_wait()
+	// (see 'Level-triggered and edge-triggered' section at: https://man7.org/linux/man-pages/man7/epoll.7.html) 
+	// && 
+	// add client to epoll for performance reasons
+	// (see example at: https://man7.org/linux/man-pages/man7/epoll.7.html)
+	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) < 0 && epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
+		std::cerr << "Error: Failed to set non-blocking socket" << std::endl;
+		close(client_fd);
+		return false;
+	}
+
+
+
+	Client client(client_fd, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
+	this->_clients.push_back(client);
+	std:: cout << TEXT_GREEN << "New connection from Client(" << client.ID << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
+
+	return true;
+}
+
+bool Server::handleMessages(const int fd) {
+	std::string msg;
+	char buffer[BUFFER_SIZE];
+	int bytes_read = 0;
+
+
+	bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
+	if (bytes_read < 0) {
+		std::cerr << "Error: Failed to read from socket" << std::endl;
+		return false;
+	} // if bytes_read == 0 at first recv, the client has disconnected and will be handled in the next step
+
+	msg.append(buffer, bytes_read);
+
+	while (bytes_read == BUFFER_SIZE - 1) { // if bytes_read == BUFFER_SIZE - 1, there is more to read
+		bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
+		if (bytes_read < 0) {
+			std::cerr << "Error: Failed to read from socket" << std::endl;
+			return false;
+		}
+		msg.append(buffer, bytes_read);
+	}
+
+	std::cout << "[DEBUG] msg: " << msg << std::endl; // TODO: remove
+
+	if (!commandsHandler(msg))
+		return false;
+
+	return false;
+}
+
 void Server::start() {
 	initAllSignalHandlers();
 
+	std::cout << "[DEBUG]" << std::endl << "Socket fd = " << this->_socket_fd << std::endl;
+
 	global_status = e_RUN;
-	while (global_status) {
+	while (global_status != e_STOP) {
 		switch (global_status) {
 			case e_RUN: {
 				std::cout << TEXT_GREEN << "Server listening on port " << TEXT_BOLD << this->_port << TEXT_RESET << TEXT_GREEN << ", using password: " << TEXT_UNDERLINE << this->_password << TEXT_RESET << std::endl;
@@ -94,14 +224,14 @@ void Server::start() {
 			}
 			case e_RESTART: {
 				std::cout << TEXT_YELLOW << "Server restarting..." << TEXT_RESET << std::endl;
-				// TODO: send restart message to all clients
+				this->sendMsgToAll("The server is restarting...");
 				global_status = e_RUN;
 
 				break;
 			}
 			case e_STOP: {
 				std::cout << TEXT_YELLOW << "Server stopping..." << TEXT_RESET << std::endl;
-				// TODO: disconnect everyone
+				this->disconnectAllClients();
 
 				break;
 			}
