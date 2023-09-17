@@ -1,12 +1,9 @@
 #include "parsing.hpp"
-#include "socket.hpp"
 #include "utils.hpp"
-#include "signals.hpp"
 #include "Server.hpp"
 
 #include <iostream>
 #include <string>
-#include <signal.h>
 
 int main(int argc, char** argv) {
 	unsigned int port;
@@ -18,20 +15,10 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	// start server
-	int fd = initSocket(port);
-	if (fd < 0) {
-		std::cerr << TEXT_RED << "Error: Could not start server." << TEXT_RESET << std::endl;
-		return 2;
-	}
-	port = getPort(fd);
-
-	signal(SIGINT, sigIntHandler); // allows to ctrl+c the server once it's started
-
 	try {
-		Server(port, password).start(fd);
+		Server(port, password).start();
 	} catch (std::exception &e) {
-		std::cerr << TEXT_RED << "Unexpected Error: " << e.what() << TEXT_RESET << std::endl;
+		std::cerr << TEXT_RED << "Error: " << e.what() << TEXT_RESET << std::endl;
 		return 1;
 	}
 

@@ -6,26 +6,34 @@
 
 #include <string>
 #include <vector>
+#include <sys/epoll.h>
 
 #define EPOLL_MAX_EVENTS 4096
+
 class Server {
 	public:
 		Server(const unsigned int port, const std::string &password);
 		~Server();
 
-		std::string getPassword();
-		int getPort();
-
-		void start(const int fd);
+		void start();
 		void flush();
 
 	private:
 		std::string _password;
 		unsigned int _port;
-		int _fd;
+		int _socket_fd;
+		int _epoll_fd;
+		struct epoll_event _event;
+		struct epoll_event _events[EPOLL_MAX_EVENTS];
+		int _event_count;
 
 		std::vector<Client> _clients;
 		std::vector<Channel> _channels;
+
+		bool initEpoll();
+		bool handlePolling();
+		bool handleNewConnection();
+		bool handleMessages(const int fd);
 };
 
 #endif
