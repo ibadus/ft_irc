@@ -1,8 +1,12 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
 
-#include <string>
+#include "Client.hpp"
+#include "Channel.hpp"
 
-bool commandsHandler(std::string msg);
+#include <string>
+#include <vector>
+
+bool commandsHandler(std::string msg, Client &client, std::vector<Client> &clients, std::vector<Channel> &channels, std::string password);
 
 #endif
