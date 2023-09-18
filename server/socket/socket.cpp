@@ -6,7 +6,7 @@
 #include <unistd.h> // close
 #include <stdio.h> // perror
 
-static struct sockaddr_in6 getAddress(unsigned int port);
+static struct sockaddr_in getAddress(unsigned int port);
 static int startSocket(unsigned int port);
 
 int initSocket(unsigned int port) {
@@ -27,15 +27,15 @@ int initSocket(unsigned int port) {
 }
 
 unsigned int getPort(int fd) {
-	struct sockaddr_in6 address;
+	struct sockaddr_in address;
 	socklen_t len = sizeof(address);
 	getsockname(fd, (struct sockaddr*)&address, &len);
-	return ntohs(address.sin6_port);
+	return ntohs(address.sin_port);
 }
 
 
 static int startSocket(unsigned int port) {
-	int fd = socket(AF_INET6, SOCK_STREAM, 0); // AF_INET6 = IPv6, SOCK_STREAM = TCP
+	int fd = socket(AF_INET, SOCK_STREAM, 0); // AF_INET6 = IPv4, SOCK_STREAM = TCP 
 	if (fd < 0)
 		return -1;
 
@@ -45,7 +45,7 @@ static int startSocket(unsigned int port) {
 		return -1;
 	}
 
-	struct sockaddr_in6 address = getAddress(port);
+	struct sockaddr_in address = getAddress(port);
 	if (bind(fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
 		close(fd); // close socket
 		return -2;
@@ -60,13 +60,11 @@ static int startSocket(unsigned int port) {
 	return fd;
 }
 
-static struct sockaddr_in6 getAddress(unsigned int port) {
-	struct sockaddr_in6 addr;
-	addr.sin6_family = AF_INET6; // IPv6
-	addr.sin6_port = htons(port); // convert to network byte order
-	addr.sin6_flowinfo = 0; // IPv6 flow information
-	addr.sin6_addr = in6addr_any; // listen on all interfaces
-	addr.sin6_scope_id = 0; // IPv6 scope id
+static struct sockaddr_in getAddress(unsigned int port) {
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET; // IPv4
+	addr.sin_port = htons(port); // convert to network byte order
+	addr.sin_addr.s_addr = htonl(INADDR_ANY); // listen on all interfaces
 	
 	return addr;
 }
