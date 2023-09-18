@@ -11,10 +11,10 @@
 // Defines the maximum size of the batch of IO events to process on
 // each loop iteration. A larger number will increase throughput but
 // decrease concurrency.
-#define EPOLL_MAX_EVENTS 64
+#define EPOLL_MAX_EVENTS 32
 
 // Defines the maximum size of the buffer used to receive incoming messages.
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 1024
 
 class Server {
 	public:
@@ -40,10 +40,11 @@ class Server {
 		void disconnectClient(const int fd);
 		void disconnectAllClients();
 		void sendMsgToAll(std::string msg);
+		Client &getClientByFD(const int fd);
 
 		bool initEpoll();
 		bool handlePolling();
-		bool handleNewConnection(struct epoll_event event);
+		bool handleNewConnection(struct epoll_event &event);
 		bool handleMessages(const int fd);
 };
 

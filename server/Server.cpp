@@ -66,6 +66,15 @@ void Server::sendMsgToAll(std::string msg) {
 	}
 }
 
+Client &Server::getClientByFD(const int fd) {
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getFD() == fd) {
+			return *it;
+		}
+	}
+	return *this->_clients.end();
+}
+
 bool Server::initEpoll() {
 	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd < 0) {
@@ -77,7 +86,7 @@ bool Server::initEpoll() {
 	this->_event.events = EPOLLIN;
 	this->_event.data.fd = this->_socket_fd;
 
-	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &(_event))) {
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &(_event)) < 0) {
 		std::cerr << "Error: epoll_ctl error" << std::endl;
 		global_status = e_STOP;
 		return false;
@@ -90,8 +99,8 @@ bool Server::handlePolling() {
 	this->_event_count = 0;
 
 	while (global_status == e_RUN) {
+		std::cout << "[DEBUG] epoll_wait, max events: " << static_cast<int>(this->_events.size()) << std::endl; // TODO: remove
 		this->_event_count = epoll_wait(this->_epoll_fd, &(this->_events[0]), static_cast<int>(this->_events.size()), -1);
-
 		if (this->_event_count < 0) {
 			std::cerr << "Error: epoll_wait error" << std::endl;
 			global_status = e_STOP;
@@ -104,22 +113,26 @@ bool Server::handlePolling() {
 		if (this->_event_count >= static_cast<int>(this->_events.size()))
 			this->_events.resize(this->_events.size() * 2);
 
+		std::cout << "[DEBUG] event_count: " << this->_event_count << std::endl; // TODO: remove
+
 		for (int i = 0; i < this->_event_count; i++) {
 			// TODO: if ptr is defined on new connection and not after then use 'if (_events[i].data.ptr)' instead of 'if (this->_events[i].data.fd == this->_socket_fd)' below
 			// check line poco/PollSet.cpp:205
-			std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
-			std::cout << "[DEBUG] event fd=" << this->_events[i].data.fd << " | socket fd=" << this->_socket_fd << " | epoll fd=" << this->_epoll_fd << std::endl; // TODO: remove
-
+			std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | fd=" << this->_events[i].data.fd << " | u32=" << this->_events[i].data.u32 << " | u64=" << this->_events[i].data.u64 << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
 			if (global_status == e_RUN) {
 				if (this->_events[i].data.fd == this->_socket_fd) {
 					this->handleNewConnection(this->_events[i]);
-				} else if (this->_events[i].events & EPOLLIN) {
-					this->handleMessages(this->_events[i].data.fd);
-				} else if (this->_events[i].events & EPOLLRDHUP || this->_events[i].events & EPOLLHUP) {
+				}
+				std::cout << "if (" << (this->_events[i].events & (EPOLLERR | EPOLLHUP)) << ")" << std::endl; // TODO: remove
+				std::cout << "else if (" << (this->_events[i].events & EPOLLIN) << " && " << (this->_events[i].data.fd != this->_socket_fd) << ")" << std::endl; // TODO: remove
+				if (this->_events[i].events & (EPOLLERR | EPOLLHUP)) {
 					std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, this->_events[i].data.fd, NULL);
 					this->disconnectClient(this->_events[i].data.fd);
 					close(this->_events[i].data.fd);
+					continue;
+				} else if ((this->_events[i].events & EPOLLIN) && this->_events[i].data.fd != this->_socket_fd) {
+					this->handleMessages(this->_events[i].data.fd);
 					continue;
 				} else {
 					if (this->_events[i].events == EPOLLERR)
@@ -135,39 +148,42 @@ bool Server::handlePolling() {
 	return true;
 }
 
-bool Server::handleNewConnection(struct epoll_event event) {
-	struct sockaddr_in client_addr; // sockaddr_in6 is not needed to work even with ipv6 socket
+bool Server::handleNewConnection(struct epoll_event &event) {
+	struct sockaddr_in client_addr; 
 	socklen_t client_addr_len = sizeof(client_addr);
 
-	int client_fd = accept(event.data.fd, (struct sockaddr *)&client_addr, &client_addr_len);
+	int client_fd = accept(this->_socket_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len);
 	if (client_fd < 0) {
 		std::cerr << "Error: Failed to accept new connection" << std::endl;
 		return false;
 	}
 
-	struct epoll_event client_event = {
-		.events =  EPOLLIN | EPOLLET | EPOLLRDHUP | EPOLLHUP | EPOLLERR, // every events supported (?)
-		.data = {
-			.fd = client_fd
-		}
-	};
+	struct epoll_event client_event;
+	client_event.events =  EPOLLIN | EPOLLET;
+	client_event.data.fd = client_fd;
+	
 
+	int flags = fcntl(client_fd, F_GETFL, 0);
+	if (flags < 0) {
+		std::cerr << "Error: Failed to get socket flags" << std::endl;
+		close(client_fd);
+		return false;
+	}
+	flags |= O_NONBLOCK;
 	// set non-blocking socket as we set it to edge to avoid infinite block on next epoll_wait()
 	// (see 'Level-triggered and edge-triggered' section at: https://man7.org/linux/man-pages/man7/epoll.7.html) 
 	// && 
 	// add client to epoll for performance reasons
 	// (see example at: https://man7.org/linux/man-pages/man7/epoll.7.html)
-	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) < 0 && epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
+	if (fcntl(client_fd, F_SETFL, flags) < 0 && epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
 		std::cerr << "Error: Failed to set non-blocking socket" << std::endl;
 		close(client_fd);
 		return false;
 	}
 
-
-
 	Client client(client_fd, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
 	this->_clients.push_back(client);
-	std:: cout << TEXT_GREEN << "New connection from Client(" << client.ID << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
+	std:: cout << TEXT_GREEN << "New connection from Client(" << client.getFD() << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
 
 	return true;
 }
@@ -177,16 +193,19 @@ bool Server::handleMessages(const int fd) {
 	char buffer[BUFFER_SIZE];
 	int bytes_read = 0;
 
-
-	bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
+	std::cout << "[DEBUG] Reading fd: " << fd << std::endl; // TODO: remove
+	bytes_read = recv(fd, buffer, BUFFER_SIZE - 1, 0);
 	if (bytes_read < 0) {
-		std::cerr << "Error: Failed to read from socket" << std::endl;
+		std::cerr << "Error: Failed to read from socket err:" << bytes_read << std::endl;
 		return false;
-	} // if bytes_read == 0 at first recv, the client has disconnected and will be handled in the next step
+	}
 
+	std::cout << "[DEBUG] bytes_read: " << bytes_read << std::endl; // TODO: remove
 	msg.append(buffer, bytes_read);
+	std::cout << "[DEBUG] msg: " << msg << std::endl; // TODO: remove
 
-	while (bytes_read == BUFFER_SIZE - 1) { // if bytes_read == BUFFER_SIZE - 1, there is more to read
+	// if bytes_read == BUFFER_SIZE - 1, there is more to read
+	while (bytes_read == BUFFER_SIZE - 1) {
 		bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
 		if (bytes_read < 0) {
 			std::cerr << "Error: Failed to read from socket" << std::endl;
@@ -195,12 +214,19 @@ bool Server::handleMessages(const int fd) {
 		msg.append(buffer, bytes_read);
 	}
 
-	std::cout << "[DEBUG] msg: " << msg << std::endl; // TODO: remove
-
-	if (!commandsHandler(msg))
+	// if bytes_read == 0 by recv, the client has disconnected
+	if (msg.length() == 0) {
+		this->disconnectClient(fd);
 		return false;
+	}
 
-	return false;
+	Client &client = this->getClientByFD(fd);
+	if (client == *this->_clients.end()) {
+		std::cerr << "Error: Client not found" << std::endl;
+		return false;
+	}
+
+	return commandsHandler(msg, client, this->_clients, this->_channels, this->_password);
 }
 
 void Server::start() {
