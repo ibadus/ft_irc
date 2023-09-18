@@ -7,10 +7,10 @@
 #include <sys/socket.h> // send
 #include <unistd.h> // close
 
-size_t Client::ID = 0; // auto increment
+size_t Client::g_ID = 0; // auto increment
 
-Client::Client(int fd, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo): _fd(fd), _host(host), _port(port), _conn_event(event), _addrinfo(addrinfo) {
-	Client::ID++;
+Client::Client(int fd, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo): _fd(fd), _host(host), _port(port), _conn_event(event), _addrinfo(addrinfo), _nickname("") {
+	Client::ID = Client::g_ID++;
 }
 
 Client::~Client() {}

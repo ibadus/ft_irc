@@ -8,10 +8,14 @@
 class Client
 {
 	public:
-		static size_t ID; // auto increment
+		size_t ID;
 
 		Client(int fd, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo);
 		~Client();
+
+		bool operator==(const Client &other) const {
+			return this->_fd == other.getFD() && this->_host == other.getHost() && this->_port == other.getPort();
+		}
 
 		int getFD() const { return this->_fd; }
 		std::string getHost() const { return this->_host; }
@@ -23,6 +27,8 @@ class Client
 		void sendMsg(std::string msg);
 		void disconnect();
 	private:
+		static size_t g_ID; // auto increment
+
 		int _fd;
 		std::string _host;
 		int _port;
