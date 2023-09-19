@@ -179,9 +179,6 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	flags |= O_NONBLOCK;
 	// set non-blocking socket as we set it to edge to avoid infinite block on next epoll_wait()
 	// (see 'Level-triggered and edge-triggered' section at: https://man7.org/linux/man-pages/man7/epoll.7.html) 
-	// && 
-	// add client to epoll for performance reasons
-	// (see example at: https://man7.org/linux/man-pages/man7/epoll.7.html)
 	if (fcntl(client_fd, F_SETFL, flags) < 0) {
 		std::cerr << "Error: Failed to set non-blocking socket" << std::endl;
 		close(client_fd);
@@ -191,6 +188,8 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	struct epoll_event client_event;
 	client_event.events =  EPOLLIN | EPOLLRDHUP;
 	client_event.data.fd = client_fd;
+	// add client to epoll for performance reasons
+	// (see example at: https://man7.org/linux/man-pages/man7/epoll.7.html)
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
 		std::cerr << "Error: Failed to set non-blocking socket" << std::endl;
 		close(client_fd);
