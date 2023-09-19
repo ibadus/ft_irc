@@ -23,7 +23,11 @@ static int parsePort(std::string port) {
 			return -1;
 	}
 
-	return toInt(port);
+	int iport = toInt(port);
+	if (iport < 0 || iport > 65535)
+		return -1;
+
+	return iport;
 }
 
 bool parseArgs(int argc, char** argv, unsigned int *port, std::string *password) {

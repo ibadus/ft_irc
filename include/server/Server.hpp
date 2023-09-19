@@ -16,6 +16,8 @@
 // Defines the maximum size of the buffer used to receive incoming messages.
 #define BUFFER_SIZE 1024
 
+#define MAX_CLIENTS 25
+
 class Server {
 	public:
 		Server(const unsigned int port, const std::string &password);

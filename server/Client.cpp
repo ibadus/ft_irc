@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "utils.hpp"
 
 #include <string>
 #include <iostream>
@@ -20,7 +21,7 @@ void Client::sendMsg(std::string msg) {
 }
 
 void Client::disconnect() {
-	sendMsg("The server is disconnecting you...");
+	sendMsg(std::string(TEXT_RED) + "The server is disconnecting you..." + std::string(TEXT_RESET));
 	close(this->_fd);
 	std::cout << "Client (" << this->ID << ") disconnected." << std::endl;
 }

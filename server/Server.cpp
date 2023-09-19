@@ -83,10 +83,19 @@ bool Server::initEpoll() {
 		return false;
 	}
 
+	// set non blocking
+	if (fcntl(this->_epoll_fd, F_SETFL, O_NONBLOCK) < 0) {
+		close(this->_epoll_fd);
+		std::cerr << "Error: setting epoll non blocking" << std::endl;
+		global_status = e_STOP;
+		return -1;
+	}
+
 	this->_event.events = EPOLLIN;
 	this->_event.data.fd = this->_socket_fd;
 
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_socket_fd, &(_event)) < 0) {
+		close(this->_epoll_fd); // close socket
 		std::cerr << "Error: epoll_ctl error" << std::endl;
 		global_status = e_STOP;
 		return false;
@@ -100,7 +109,7 @@ bool Server::handlePolling() {
 
 	while (global_status == e_RUN) {
 		std::cout << "[DEBUG] epoll_wait, max events: " << static_cast<int>(this->_events.size()) << std::endl; // TODO: remove
-		this->_event_count = epoll_wait(this->_epoll_fd, &(this->_events[0]), static_cast<int>(this->_events.size()), -1);
+		this->_event_count = epoll_wait(this->_epoll_fd, this->_events.data(), static_cast<int>(this->_events.size()), -1);
 		if (this->_event_count < 0) {
 			std::cerr << "Error: epoll_wait error" << std::endl;
 			global_status = e_STOP;
@@ -120,19 +129,16 @@ bool Server::handlePolling() {
 			// check line poco/PollSet.cpp:205
 			std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | fd=" << this->_events[i].data.fd << " | u32=" << this->_events[i].data.u32 << " | u64=" << this->_events[i].data.u64 << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
 			if (global_status == e_RUN) {
-				if (this->_events[i].data.fd == this->_socket_fd) {
+				if (this->_events[i].data.fd == this->_socket_fd && this->_events[i].events & EPOLLIN) {
 					this->handleNewConnection(this->_events[i]);
-				}
-				std::cout << "if (" << (this->_events[i].events & (EPOLLERR | EPOLLHUP)) << ")" << std::endl; // TODO: remove
-				std::cout << "else if (" << (this->_events[i].events & EPOLLIN) << " && " << (this->_events[i].data.fd != this->_socket_fd) << ")" << std::endl; // TODO: remove
-				if (this->_events[i].events & (EPOLLERR | EPOLLHUP)) {
+				} else if (this->_events[i].events & EPOLLIN) {
+					this->handleMessages(this->_events[i].data.fd);
+					continue;
+				} else if (this->_events[i].events & EPOLLERR || this->_events[i].events & EPOLLHUP) {
 					std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, this->_events[i].data.fd, NULL);
 					this->disconnectClient(this->_events[i].data.fd);
 					close(this->_events[i].data.fd);
-					continue;
-				} else if ((this->_events[i].events & EPOLLIN) && this->_events[i].data.fd != this->_socket_fd) {
-					this->handleMessages(this->_events[i].data.fd);
 					continue;
 				} else {
 					if (this->_events[i].events == EPOLLERR)
@@ -158,10 +164,11 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 		return false;
 	}
 
-	struct epoll_event client_event;
-	client_event.events =  EPOLLIN | EPOLLET;
-	client_event.data.fd = client_fd;
-	
+	if (this->_clients.size() >= MAX_CLIENTS) {
+		std::cerr << "Error: Max clients reached" << std::endl;
+		close(client_fd);
+		return false;
+	}
 
 	int flags = fcntl(client_fd, F_GETFL, 0);
 	if (flags < 0) {
@@ -175,7 +182,16 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	// && 
 	// add client to epoll for performance reasons
 	// (see example at: https://man7.org/linux/man-pages/man7/epoll.7.html)
-	if (fcntl(client_fd, F_SETFL, flags) < 0 && epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
+	if (fcntl(client_fd, F_SETFL, flags) < 0) {
+		std::cerr << "Error: Failed to set non-blocking socket" << std::endl;
+		close(client_fd);
+		return false;
+	}
+
+	struct epoll_event client_event;
+	client_event.events =  EPOLLIN | EPOLLRDHUP;
+	client_event.data.fd = client_fd;
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, client_fd, &client_event) < 0) {
 		std::cerr << "Error: Failed to set non-blocking socket" << std::endl;
 		close(client_fd);
 		return false;
