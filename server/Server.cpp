@@ -134,7 +134,7 @@ bool Server::handlePolling() {
 				} else if (this->_events[i].events & EPOLLIN) {
 					this->handleMessages(this->_events[i].data.fd);
 					continue;
-				} else if (this->_events[i].events & EPOLLERR || this->_events[i].events & EPOLLHUP) {
+				} else if (this->_events[i].events & EPOLLERR || this->_events[i].events & EPOLLHUP || this->_events[i].events & EPOLLHUP) {
 					std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, this->_events[i].data.fd, NULL);
 					this->disconnectClient(this->_events[i].data.fd);
@@ -204,6 +204,12 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 }
 
 bool Server::handleMessages(const int fd) {
+	Client &client = this->getClientByFD(fd);
+	if (client == *this->_clients.end()) {
+		std::cerr << "Error: Client not found" << std::endl;
+		return false;
+	}
+
 	std::string msg;
 	char buffer[BUFFER_SIZE];
 	int bytes_read = 0;
@@ -215,13 +221,11 @@ bool Server::handleMessages(const int fd) {
 		return false;
 	}
 
-	std::cout << "[DEBUG] bytes_read: " << bytes_read << std::endl; // TODO: remove
 	msg.append(buffer, bytes_read);
-	std::cout << "[DEBUG] msg: " << msg << std::endl; // TODO: remove
 
 	// if bytes_read == BUFFER_SIZE - 1, there is more to read
 	while (bytes_read == BUFFER_SIZE - 1) {
-		bytes_read = recv(fd, buffer, BUFFER_SIZE, 0);
+		bytes_read = recv(fd, buffer, BUFFER_SIZE - 1, 0);
 		if (bytes_read < 0) {
 			std::cerr << "Error: Failed to read from socket" << std::endl;
 			return false;
@@ -235,13 +239,31 @@ bool Server::handleMessages(const int fd) {
 		return false;
 	}
 
-	Client &client = this->getClientByFD(fd);
-	if (client == *this->_clients.end()) {
-		std::cerr << "Error: Client not found" << std::endl;
-		return false;
+	client.recv_buffer.append(msg);
+
+	std::cout << "[DEBUG] CURRENT BUFFER: "; // TODO: remove
+	for (std::string::iterator it = client.recv_buffer.begin(); it != client.recv_buffer.end(); ++it) {
+		if (*it == '\r')
+			std::cout << "\\r";
+		else if (*it == '\n')
+			std::cout << "\\n";
+		else
+			std::cout << *it;
+	}
+	std::cout << std::endl; // TODO: remove
+
+	while (client.recv_buffer.find("\r\n") != std::string::npos) {
+		size_t position = client.recv_buffer.find("\r\n");
+
+		std::string command = client.recv_buffer.substr(0, position);
+		client.recv_buffer = client.recv_buffer.substr(position + 2); // remove command (with \r\n) from buffer
+
+		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
+
+		commandsHandler(command, client, this->_clients, this->_channels, this->_password);
 	}
 
-	return commandsHandler(msg, client, this->_clients, this->_channels, this->_password);
+	return true;
 }
 
 void Server::start() {

@@ -10,6 +10,8 @@ class Client
 	public:
 		size_t ID;
 
+		std::string recv_buffer;
+
 		Client(int fd, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo);
 		~Client();
 
@@ -37,6 +39,7 @@ class Client
 		struct sockaddr_in 	_addrinfo;
 
 		std::string _nickname;
+
 };
 
 #endif
