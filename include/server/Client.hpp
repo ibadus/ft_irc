@@ -25,9 +25,16 @@ class Client
 		struct epoll_event getEvent() const { return this->_conn_event; }
 		struct sockaddr_in getAddrinfo() const { return this->_addrinfo; }
 		std::string getNickname() const { return this->_nickname; }
+		void setNickname(std::string nickname) { this->_nickname = nickname; }
 
 		void sendMsg(std::string msg);
 		void disconnect();
+
+		bool isRegistered() const { return this->_registered; }
+		void setRegistered(bool registered) { this->_registered = registered; }
+
+		bool isIdentified() const { return this->_identified; }
+		void setIdentified(bool identified) { this->_identified = identified; }
 	private:
 		static size_t g_ID; // auto increment
 
@@ -39,6 +46,9 @@ class Client
 		struct sockaddr_in 	_addrinfo;
 
 		std::string _nickname;
+
+		bool _registered;
+		bool _identified;
 
 };
 

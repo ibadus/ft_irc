@@ -17,6 +17,12 @@ SRCS_PATH		=	.
 SRCS			=	main.cpp \
 					$(addprefix server/, \
 						$(addprefix commands/, \
+							$(addprefix messages/, \
+								nick.cpp \
+								pass.cpp \
+								ping.cpp \
+							) \
+							Message.cpp \
 							handler.cpp \
 						) \
 						$(addprefix parsing/, \

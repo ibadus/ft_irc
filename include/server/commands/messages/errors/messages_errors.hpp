@@ -1,0 +1,6 @@
+#ifndef MESSAGES_ERRORS_HPP
+#define MESSAGES_ERRORS_HPP
+
+
+
+#endif

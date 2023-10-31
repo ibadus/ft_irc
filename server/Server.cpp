@@ -6,6 +6,7 @@
 #include "signals.hpp"
 #include "status.hpp" // global_status
 #include "commands.hpp"
+#include "Message.hpp"
 
 #include <string>
 #include <iostream>
@@ -258,9 +259,11 @@ bool Server::handleMessages(const int fd) {
 		std::string command = client.recv_buffer.substr(0, position);
 		client.recv_buffer = client.recv_buffer.substr(position + 2); // remove command (with \r\n) from buffer
 
+		Message message(command, client);
+
 		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
 
-		commandsHandler(command, client, this->_clients, this->_channels, this->_password);
+		commandsHandler(message, this->_clients, this->_channels, this->_password);
 	}
 
 	return true;
