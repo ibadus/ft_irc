@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-void PASS(Message &msg, std::string password);
-void PING(Message &msg);
-void NICK(Message msg, std::vector<Client> &clients);
+void PASS(Server &server, Client &client);
+void PING(Client &client);
+void NICK(Server &server, Client &client);
 
 #endif

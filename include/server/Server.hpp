@@ -18,11 +18,15 @@
 
 #define MAX_CLIENTS 25
 
+class Client;
+
 class Server {
 	public:
 		Server(const unsigned int port, const std::string &password);
 		~Server();
 
+		std::vector<Client> getClientList() const { return this->_clients; }
+		std::string getSeverPassword() const { return this->_password; }
 		void start();
 		void flush();
 

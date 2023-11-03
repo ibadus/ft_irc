@@ -7,7 +7,10 @@
 #include <vector>
 #include <iostream>
 
-Message::Message(std::string line, Client &client): msg(line), client(client) {
+
+Message::Message(){}
+
+Message::Message(std::string line): msg(line){
 	std::string::size_type pos = msg.find(' ');
 	if (pos == std::string::npos)
 		throw std::invalid_argument("Invalid command");
@@ -27,4 +30,4 @@ Message::Message(std::string line, Client &client): msg(line), client(client) {
 		std::cout << "\t" << *it << std::endl;
 }
 
-Message::~Message() { }
+Message::~Message() {}

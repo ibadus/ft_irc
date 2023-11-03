@@ -4,10 +4,11 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
+#include "Server.hpp"
 
 #include <string>
 #include <vector>
 
-bool commandsHandler(Message msg, std::vector<Client> &clients, std::vector<Channel> &channels, std::string password);
+bool commandsHandler(Server &server, Client &client);
 
 #endif
