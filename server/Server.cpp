@@ -197,7 +197,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 		return false;
 	}
 
-	Client client(client_fd, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
+	Client client(client_fd, this, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
 	this->_clients.push_back(client);
 	std:: cout << TEXT_GREEN << "New connection from Client(" << client.getFD() << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
 
@@ -259,11 +259,12 @@ bool Server::handleMessages(const int fd) {
 		std::string command = client.recv_buffer.substr(0, position);
 		client.recv_buffer = client.recv_buffer.substr(position + 2); // remove command (with \r\n) from buffer
 
-		Message message(command, client);
+		client.setClientMessage(Message(command));
 
 		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
 
-		commandsHandler(message, this->_clients, this->_channels, this->_password);
+		// check the return value of commandsHandler since it's a Boolean return value
+		commandsHandler(*this , client);
 	}
 
 	return true;
