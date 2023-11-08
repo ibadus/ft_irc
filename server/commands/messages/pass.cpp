@@ -2,11 +2,13 @@
 #include "Message.hpp"
 #include "utils.hpp"
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <iostream>
 
 // https://modern.ircdocs.horse/#pass-message
 void PASS(Server &server, Client &client) {
+
 	Message message = client.getClientMessage();
 	if (message.args.size() != 1) {
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
@@ -17,7 +19,7 @@ void PASS(Server &server, Client &client) {
 		client.sendMsg("462 ERR_ALREADYREGISTRED:You are already registered.");
 		return;
 	}
-	if (message.args[0] == server.getSeverPassword()) {
+	if (message.args[0] == server.getServerPassword()) {
 		client.setRegistered(true);
 		return;
 	} else {

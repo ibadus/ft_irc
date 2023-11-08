@@ -15,26 +15,28 @@ bool commandsHandler(Server &server, Client &client) {
 	Message message = client.getClientMessage();
 
 	std::cout << TEXT_GREEN << "[" << message.msg.length() << "b] " << client.getFD() << "(" << client.ID << ")" << "cmd: " << message.cmd << TEXT_RESET << std::endl;
+
 	if (message.cmd == "PASS") {
 		PASS(server, client);
 	} else if (message.cmd == "PING") { // Sends a CTCP PING request to a nickname or a channel
 		PING(client);
+	}
+	if (message.cmd == "NICK") { // Changes your nickname on the active server
+		NICK(server, client);
+	}
+	if (message.cmd == "USER") 
+	{
+		std::cout << "IN USER COMMAND" << std::endl; 
+		USER(server, client);
 	}
 
 	if (!client.isRegistered())
 		return true;
 	// past this point, the client is registered
 
-	if (message.cmd == "NICK") { // Changes your nickname on the active server
-		NICK(server, client);
-	} else if (message.cmd == "USER") {
-
-	}
-
 	if (!client.isIdentified())
 		return true;
 	// past this point, the user has registered and identified
-
 	// if (msg.cmd == "JOIN") {
 
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM

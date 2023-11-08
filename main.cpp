@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 	}
 
 	try {
-		Server(port, password).start();
+		Server("IRC42", port, password).start();
 	} catch (std::exception &e) {
 		std::cerr << TEXT_RED << "Error: " << e.what() << TEXT_RESET << std::endl;
 		return 1;

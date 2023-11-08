@@ -1,6 +1,10 @@
 #include "messages.hpp"
 #include "Message.hpp"
 #include "utils.hpp"
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <iostream>
 
 #include <string>
 
@@ -9,6 +13,7 @@ void NICK(Server &server, Client &client) {
 	std::vector<Client> clientList = server.getClientList();
 	Message message = client.getClientMessage();
 
+	std::cout << "NICK NUMBERS ARGS " << message.args.size() << std::endl;
 	if (message.args.size() != 1) {
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
 		return;
@@ -29,7 +34,27 @@ void NICK(Server &server, Client &client) {
 			return;
 		}
 	}
-
 	// TODO: change nick to all channels
-	//msg.client.setNickname(msg.args[0]);
+	std::cout << "CLIENT STATUS " << std::endl;
+	std::cout << "CLIENT STATUS " << std::endl;
+	std::cout << "CLIENT STATUS " << std::endl;
+
+	if (client.isRegistered() or client.isIdentified())
+	{
+		if (client.isRegistered())
+		{
+			client.setNickname(message.args[0]);
+			client.setNickHistory(message.args[0]);
+			client.setHasNick(true);
+		}
+		if (client.isIdentified())
+		{
+			sendNick(client);
+		}
+		return ;
+	}
+	// std::cout << "MESSAGE ARGS[0]: " << message.args[0] << std::endl;
+	// std::cout << "CLIENT NICKNAME:  " << client.getNickname() << std::endl;
+
+
 }

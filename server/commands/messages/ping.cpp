@@ -13,5 +13,5 @@ void PING(Client &client) {
 		return;
 	}
 
-	client.sendMsg("PONG " + message.args[0]);
+	sendPING(client, message);
 }

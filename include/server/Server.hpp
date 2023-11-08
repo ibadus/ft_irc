@@ -22,15 +22,16 @@ class Client;
 
 class Server {
 	public:
-		Server(const unsigned int port, const std::string &password);
+		Server(const std::string &name, const unsigned int port, const std::string &password);
 		~Server();
-
+		std::string getServerPassword() const { return this->_password; }
 		std::vector<Client> getClientList() const { return this->_clients; }
-		std::string getSeverPassword() const { return this->_password; }
+		std::string getServerName() {return this->_name;}
 		void start();
 		void flush();
 
 	private:
+		std::string _name;
 		std::string _password;
 		unsigned int _port;
 		int _socket_fd;

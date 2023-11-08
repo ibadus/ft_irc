@@ -13,7 +13,7 @@ class Server;
 class Client
 {
 	public:
-		size_t ID;
+		std::string ID;
 
 		std::string recv_buffer;
 
@@ -25,6 +25,8 @@ class Client
 		}
 
 		int getFD() const { return this->_fd; }
+		void setID(std::string id) { this->ID = id; }
+		std::string getID() const { return this->ID; }
 		std::string getHost() const { return this->_host; }
 		int getPort() const { return this->_port; }
 		Message getClientMessage() const  { return this->_client_msg; }
@@ -34,7 +36,22 @@ class Client
 		struct sockaddr_in getAddrinfo() const { return this->_addrinfo; }
 		std::string getNickname() const { return this->_nickname; }
 		void setNickname(std::string nickname) { this->_nickname = nickname; }
-
+		std::string getUserName() const { return this->_username; }
+		void setUserName(std::string username) { this->_username = username; }
+		std::string getRealName() const { return this->_realname; }
+		void setRealName(std::string realname) { this->_realname = realname; }
+		std::string getPreviousNick () const 
+		{
+			if (this->_nick_history.empty())
+				return ("");
+			if (this->_nick_history.size() <= 2)
+				return (this->_nick_history[this->_nick_history.size() - 1]);
+			return (this->_nick_history[this->_nick_history.size() - 2]);
+		}
+		void setHasNick(bool nick)  { this->_hasNickName = nick;}
+		bool getHasNick() const { return this->_hasNickName; } 
+		void setNickHistory(std::string nickname) { this->_nick_history.push_back(nickname); }
+		size_t get_G_ID() { return this->g_ID; }
 		void sendMsg(std::string msg);
 		void disconnect();
 
@@ -54,9 +71,13 @@ class Client
 		struct epoll_event _conn_event;
 		struct sockaddr_in 	_addrinfo;
 
+		std::vector<std::string> _nick_history;
 		std::string _nickname;
+		std::string _username;
+		std::string _realname;
 		Message _client_msg;
 
+		bool _hasNickName;
 		bool _registered;
 		bool _identified;
 };

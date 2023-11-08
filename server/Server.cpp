@@ -20,7 +20,7 @@
 
 te_status global_status = e_STOP;
 
-Server::Server(const unsigned int port, const std::string &password): _password(password.c_str()), _port(port), _socket_fd(0), _events(std::vector<struct epoll_event>(EPOLL_MAX_EVENTS)) {
+Server::Server(const std::string &name, const unsigned int port, const std::string &password): _name(name.c_str()), _password(password.c_str()), _port(port), _socket_fd(0), _events(std::vector<struct epoll_event>(EPOLL_MAX_EVENTS)) {
 	this->_socket_fd = initSocket(this->_port);
 	if (this->_socket_fd < 0)
 		throw std::runtime_error("Could not start server.");
@@ -34,11 +34,9 @@ Server::~Server() {
 
 void Server::flush() {
 	std::cout << TEXT_YELLOW << "Flushing..." << TEXT_RESET << std::endl;
-
 	// TODO: clean epoll
 	this->_epoll_fd < 0 ? close(this->_epoll_fd) : 0;
 	this->_event_count = 0;
-
 	this->disconnectAllClients();
 	// TODO: delete channels
 	this->_channels.clear();
@@ -101,7 +99,6 @@ bool Server::initEpoll() {
 		global_status = e_STOP;
 		return false;
 	}
-
 	return true;
 }
 
@@ -151,7 +148,6 @@ bool Server::handlePolling() {
 			}
 		}
 	}
-
 	return true;
 }
 
