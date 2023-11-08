@@ -35,10 +35,6 @@ void NICK(Server &server, Client &client) {
 		}
 	}
 	// TODO: change nick to all channels
-	std::cout << "CLIENT STATUS " << std::endl;
-	std::cout << "CLIENT STATUS " << std::endl;
-	std::cout << "CLIENT STATUS " << std::endl;
-
 	if (client.isRegistered() or client.isIdentified())
 	{
 		if (client.isRegistered())

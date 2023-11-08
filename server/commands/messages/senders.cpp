@@ -28,6 +28,9 @@ void sendPING(Client &client, Message &message)
 
 void sendNick(Client &client)
 {
+	std::cout <<  "CLIENT PREVIOUS NICK :" << client.getPreviousNick() << std::endl;
+	std::cout <<  "CLIENT NEW NICK :" << client.getNickname() << std::endl;
+
 	client.sendMsg(":" + client.getPreviousNick() + " NICK " + client.getNickname() + "\r\n");
 }
 

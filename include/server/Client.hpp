@@ -44,7 +44,7 @@ class Client
 		{
 			if (this->_nick_history.empty())
 				return ("");
-			if (this->_nick_history.size() <= 2)
+			if (this->_nick_history.size() < 2)
 				return (this->_nick_history[this->_nick_history.size() - 1]);
 			return (this->_nick_history[this->_nick_history.size() - 2]);
 		}
