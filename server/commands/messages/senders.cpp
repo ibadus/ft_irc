@@ -16,10 +16,10 @@ void sendRplWelcome(Server &server, Client &client)
 // 	# define RPL_WHOISUSER(nick, user, host, realname) ( nick + " " + user + " " + host +" * :" + realname + "\r\n")
 // }
 
-// void sendPONG(Server &server)
-// {
-// 	client.sendMsg("PING " + server.getServerName + "\r\n \r\n" );
-// }
+void sendPONG(Server &server, Client &client)
+{
+	client.sendMsg("PING " + server.getServerName() + "\r\n" );
+}
 
 void sendPING(Client &client, Message &message)
 {

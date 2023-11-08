@@ -18,13 +18,16 @@ bool commandsHandler(Server &server, Client &client) {
 
 	if (message.cmd == "PASS") {
 		PASS(server, client);
-	} else if (message.cmd == "PING") { // Sends a CTCP PING request to a nickname or a channel
-		PING(client);
+	} else if (message.cmd == "PING") { 
+		PONG(client);
 	}
-	if (message.cmd == "NICK") { // Changes your nickname on the active server
+	else if (message.cmd == "PONG") {
+		PING(server, client);
+	}
+	else if (message.cmd == "NICK") { // Changes your nickname on the active server
 		NICK(server, client);
 	}
-	if (message.cmd == "USER") 
+	else if (message.cmd == "USER") 
 	{
 		std::cout << "IN USER COMMAND" << std::endl; 
 		USER(server, client);

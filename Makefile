@@ -21,6 +21,7 @@ SRCS			=	main.cpp \
 								nick.cpp \
 								pass.cpp \
 								ping.cpp \
+								pong.cpp \
 								senders.cpp \
 								user.cpp \
 							) \
