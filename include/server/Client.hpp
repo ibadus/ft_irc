@@ -8,7 +8,7 @@
 #include <netinet/in.h> // sockaddr_in
 #include <sys/epoll.h> // epoll_event
 
-class Server;
+// class Server;
 
 class Client
 {
@@ -17,9 +17,18 @@ class Client
 
 		std::string recv_buffer;
 
-		Client(int fd, Server *server ,std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo);
+		Client(int fd, Server &server ,std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo);
 		~Client();
 
+		 Client& operator=(const Client& other) {
+			if (this != &other) {
+				_fd = other.getFD();
+				_host = other.getHost();
+				_port = other.getPort();
+				_server = other.getServer();
+			}
+      		return *this;
+  		}
 		bool operator==(const Client &other) const {
 			return this->_fd == other.getFD() && this->_host == other.getHost() && this->_port == other.getPort();
 		}
@@ -31,7 +40,7 @@ class Client
 		int getPort() const { return this->_port; }
 		Message getClientMessage() const  { return this->_client_msg; }
 		void setClientMessage(Message message) { this->_client_msg = message; }
-		const Server* getServer() const { return this->_server; }
+		const Server &getServer() const { return this->_server; }
 		struct epoll_event getEvent() const { return this->_conn_event; }
 		struct sockaddr_in getAddrinfo() const { return this->_addrinfo; }
 		std::string getNickname() const { return this->_nickname; }
@@ -48,8 +57,6 @@ class Client
 				return (this->_nick_history[this->_nick_history.size() - 1]);
 			return (this->_nick_history[this->_nick_history.size() - 2]);
 		}
-		void setHasNick(bool nick)  { this->_hasNickName = nick;}
-		bool getHasNick() const { return this->_hasNickName; } 
 		void setNickHistory(std::string nickname) { this->_nick_history.push_back(nickname); }
 		size_t get_G_ID() { return this->g_ID; }
 		void sendMsg(std::string msg);
@@ -58,13 +65,24 @@ class Client
 		bool isRegistered() const { return this->_registered; }
 		void setRegistered(bool registered) { this->_registered = registered; }
 
+		bool isOnline() const {return this->_online; }
+		void setOnline(bool online)  { this->_online =  online;}
+	
 		bool isIdentified() const { return this->_identified; }
 		void setIdentified(bool identified) { this->_identified = identified; }
+	
+		bool getHasNick() const { return this->_hasNickName; }
+		void setHasNick(bool nick)  { this->_hasNickName = nick;}
+
+		bool isOperator() const { return this->_isOperator; }
+		void setOperator(bool isOp) { this->_isOperator = isOp; }
+		Server &getServer() { return this->_server; }
+ 
 	private:
 		static size_t g_ID; // auto increment
 
 		int _fd;
-		const Server* _server;
+		Server &_server;
 		std::string _host;
 		int _port;
 
@@ -77,6 +95,8 @@ class Client
 		std::string _realname;
 		Message _client_msg;
 
+		bool _isOperator;
+		bool _online;
 		bool _hasNickName;
 		bool _registered;
 		bool _identified;

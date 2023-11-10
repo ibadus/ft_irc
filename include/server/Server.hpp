@@ -1,8 +1,6 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Client.hpp"
-#include "Channel.hpp"
 
 #include <string>
 #include <vector>
@@ -19,6 +17,7 @@
 #define MAX_CLIENTS 25
 
 class Client;
+// class Channel;
 
 class Server {
 	public:

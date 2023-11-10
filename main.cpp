@@ -1,6 +1,7 @@
+#include "Server.hpp"
+#include "Client.hpp"
 #include "parsing.hpp"
 #include "utils.hpp"
-#include "Server.hpp"
 
 #include <iostream>
 #include <string>

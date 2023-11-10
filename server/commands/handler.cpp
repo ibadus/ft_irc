@@ -29,7 +29,6 @@ bool commandsHandler(Server &server, Client &client) {
 	}
 	else if (message.cmd == "USER") 
 	{
-		std::cout << "IN USER COMMAND" << std::endl; 
 		USER(server, client);
 	}
 
@@ -40,6 +39,7 @@ bool commandsHandler(Server &server, Client &client) {
 	if (!client.isIdentified())
 		return true;
 	// past this point, the user has registered and identified
+
 	// if (msg.cmd == "JOIN") {
 
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM
