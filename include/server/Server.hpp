@@ -17,7 +17,7 @@
 #define MAX_CLIENTS 25
 
 class Client;
-// class Channel;
+class Channel;
 
 class Server {
 	public:
@@ -25,6 +25,7 @@ class Server {
 		~Server();
 		std::string getServerPassword() const { return this->_password; }
 		std::vector<Client> getClientList() const { return this->_clients; }
+		
 		std::string getServerName() {return this->_name;}
 		void start();
 		void flush();
@@ -47,6 +48,7 @@ class Server {
 		void disconnectAllClients();
 		void sendMsgToAll(std::string msg);
 		Client &getClientByFD(const int fd);
+		Client &getClient(std::string ID);
 
 		bool initEpoll();
 		bool handlePolling();

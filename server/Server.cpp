@@ -74,6 +74,17 @@ Client &Server::getClientByFD(const int fd) {
 	return *this->_clients.end();
 }
 
+
+Client &Server::getClient(std::string ID)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getID() == ID) {
+			return *it;
+		}
+	}
+	return *this->_clients.end();
+}
+
 bool Server::initEpoll() {
 	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd < 0) {
