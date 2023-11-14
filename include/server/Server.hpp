@@ -1,11 +1,10 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
-
+#pragma once
 
 #include <string>
 #include <vector>
 #include <sys/epoll.h>
-
+#include "Client.hpp"
+#include "Channel.hpp"
 // Defines the maximum size of the batch of IO events to process on
 // each loop iteration. A larger number will increase throughput but
 // decrease concurrency.
@@ -17,15 +16,19 @@
 #define MAX_CLIENTS 25
 
 class Client;
-class Channel;
 
 class Server {
-	public:
+		public:
 		Server(const std::string &name, const unsigned int port, const std::string &password);
 		~Server();
 		std::string getServerPassword() const { return this->_password; }
-		std::vector<Client> getClientList() const { return this->_clients; }
-		
+		std::vector<Client> getClientList() const { return this->_clients;}
+		std::vector<Channel> getChannelList() const { return this->_channels; }
+		Channel &getChannel(std::string chanName);
+		void addChannel(std::string chanName);
+		bool	isChannelExisting(std::string name);
+		Client &getClientByFD(const int fd);
+		Client &getClient(std::string ID);
 		std::string getServerName() {return this->_name;}
 		void start();
 		void flush();
@@ -47,13 +50,8 @@ class Server {
 		void disconnectClient(const int fd);
 		void disconnectAllClients();
 		void sendMsgToAll(std::string msg);
-		Client &getClientByFD(const int fd);
-		Client &getClient(std::string ID);
-
 		bool initEpoll();
 		bool handlePolling();
 		bool handleNewConnection(struct epoll_event &event);
 		bool handleMessages(const int fd);
 };
-
-#endif

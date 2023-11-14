@@ -1,35 +1,15 @@
-#ifndef CHANNEL_HPP
-# define CHANNEL_HPP
+#pragma once
 
-# include <iostream>
-# include <string>
-# include <string.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <stdlib.h>
-# include <unistd.h>
-# include <stdio.h>
-# include <netdb.h>
-# include <poll.h>
-# include <vector>
-# include <map>
-# include <set>
-# include "server.hpp"
-# include "./client/client.hpp"
+#include "Server.hpp"
+#include "../messages/Message.hpp"
+#include <set>
 
+class Server;
 
-
-// Channel start with '&', '#', '+' or '!'
-// length max 50 charact
-// this char is not allowed ' ', control G (^G / ASCII 7) or coma (',')
-// not sensible case
 class Channel
 {
-
 	public:
-		Channel( Server& server, std::string channel_name );
+		Channel(Server &server, std::string channel_name);
 		~Channel( void );
 
 		bool	isclientConnected(std::string ID);
@@ -41,8 +21,13 @@ class Channel
 		void	removeOperator(std::string ID);
 		bool	isClientOperatorChannel(std::string ID);
 		void	sendMessageToClients( std::string msg, std::string sender);
-		std::string getChannelName() const { return this->_name; }
-		std::string getTopic() const { return this->_topic; }
+		bool 	getChannelMode() { return this->_isInviteOnly; }
+		std::set<std::string> getClientOperator() { return this->_clientOperators; }
+		std::string getChannelName() const;
+		std::string getTopic() const;
+		Server &getServer() const;
+		Channel& operator=(const Channel& other);
+		bool operator==(const Channel &other);
 	private:
 		Server&							_server;
 		std::string						_name;
@@ -52,5 +37,3 @@ class Channel
 		std::set<std::string>			_clientOperators; 
 		bool							_isInviteOnly;
 };
-
-#endif

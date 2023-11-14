@@ -1,6 +1,6 @@
 #include "Server.hpp"
-#include "Client.hpp"
 #include "Channel.hpp"
+#include "Client.hpp"
 #include "socket.hpp"
 #include "utils.hpp"
 #include "signals.hpp"
@@ -27,7 +27,8 @@ Server::Server(const std::string &name, const unsigned int port, const std::stri
 	this->_port = getPort(this->_socket_fd);
 }
 
-Server::~Server() {
+Server::~Server() {class server;
+
 	// TODO: free alloc memory
 }
 
@@ -315,4 +316,34 @@ void Server::start() {
 
 	std::cout << TEXT_YELLOW << "Server stopped, exiting..." << TEXT_RESET << std::endl;
 	close(this->_socket_fd);
+}
+
+
+bool	Server::isChannelExisting(std::string name)
+{
+	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+		if (it->getChannelName() == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+void Server::addChannel(std::string chanName)
+{
+	if (this->isChannelExisting(chanName))
+		return;
+	_channels.push_back(Channel(*this, chanName));
+}
+
+
+Channel &Server::getChannel(std::string chanName)
+{
+	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+		if (it->getChannelName() == chanName) {
+			return *it;
+		}
+	}
+	return *this->_channels.end();
 }

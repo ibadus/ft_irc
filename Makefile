@@ -23,6 +23,7 @@ SRCS			=	main.cpp \
 								ping.cpp \
 								pong.cpp \
 								senders.cpp \
+								join.cpp \
 								user.cpp \
 							) \
 							Message.cpp \

@@ -16,6 +16,32 @@ void sendRplWelcome(Server &server, Client &client)
 // 	# define RPL_WHOISUSER(nick, user, host, realname) ( nick + " " + user + " " + host +" * :" + realname + "\r\n")
 // }
 
+void sendRplTopic(Client &client, Channel &channel)
+{
+	client.sendMsg("332 " + client.getID() + " " + channel.getChannelName() + " :" + channel.getTopic() + "\r\n");
+}
+
+void sendRplNoTopic(Client &client, Channel &channel)
+{
+	client.sendMsg("331 " +  client.getID() + " " + channel.getChannelName() + " :No topic is set\r\n");
+}
+
+void sendRplNamReply(Client &client, Channel &channel, std::string clientList)
+{
+	client.sendMsg("353 =" + client.getID() + " = " + channel.getChannelName() + " : " + clientList + "\r\n");
+}
+
+void sendRplEndOfNames(Client &client, Channel &channel)
+{
+	client.sendMsg("366 " + client.getID() +" " + channel.getChannelName() + " :End of NAMES list\r\n");
+}
+
+std::string sendJOIN(Client &client, std::string chanName)
+{
+ 	return (":" + client.getID() + " JOIN " + chanName + "\r\n");
+}
+
+
 void sendPONG(Server &server, Client &client)
 {
 	client.sendMsg("PING " + server.getServerName() + "\r\n" );

@@ -1,7 +1,11 @@
+class Server;
+
 #include "Server.hpp"
-#include "Client.hpp"
 #include "parsing.hpp"
 #include "utils.hpp"
+#include "Client.hpp"
+#include "Channel.hpp"
+
 
 #include <iostream>
 #include <string>

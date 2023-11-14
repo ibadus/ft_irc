@@ -15,6 +15,29 @@ Client::Client(int fd, Server &server, std::string host, int port, struct epoll_
 	Client::ID = Client::g_ID++;
 }
 
+std::string Client::getPreviousNick () 
+{
+	if (this->_nick_history.empty())
+		return ("");
+	if (this->_nick_history.size() < 2)
+		return (this->_nick_history[this->_nick_history.size() - 1]);
+	return (this->_nick_history[this->_nick_history.size() - 2]);
+}
+
+Client& Client::operator=(const Client& other) {
+	if (this != &other) {
+        _fd = other.getFD();
+		_host = other.getHost();
+		_port = other.getPort();
+		_server = other.getServer();
+	}
+    return *this;
+}
+
+bool Client::operator==(const Client &other)  {
+	return this->_fd == other.getFD() && this->_host == other.getHost() && this->_port == other.getPort();
+}
+
 Client::~Client() {}
 
 void Client::sendMsg(std::string msg) {

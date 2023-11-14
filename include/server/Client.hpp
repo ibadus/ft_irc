@@ -1,38 +1,25 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#pragma once
 
 #include "Server.hpp"
 #include "../messages/Message.hpp"
-
 #include <string>
 #include <netinet/in.h> // sockaddr_in
 #include <sys/epoll.h> // epoll_event
 
-// class Server;
+class Server;
 
 class Client
 {
 	public:
 		std::string ID;
-
+		
 		std::string recv_buffer;
 
 		Client(int fd, Server &server ,std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo);
 		~Client();
 
-		 Client& operator=(const Client& other) {
-			if (this != &other) {
-				_fd = other.getFD();
-				_host = other.getHost();
-				_port = other.getPort();
-				_server = other.getServer();
-			}
-      		return *this;
-  		}
-		bool operator==(const Client &other) const {
-			return this->_fd == other.getFD() && this->_host == other.getHost() && this->_port == other.getPort();
-		}
-
+		 Client& operator=(const Client& other);
+		bool operator==(const Client &other);
 		int getFD() const { return this->_fd; }
 		void setID(std::string id) { this->ID = id; }
 		std::string getID() const { return this->ID; }
@@ -49,14 +36,7 @@ class Client
 		void setUserName(std::string username) { this->_username = username; }
 		std::string getRealName() const { return this->_realname; }
 		void setRealName(std::string realname) { this->_realname = realname; }
-		std::string getPreviousNick () const 
-		{
-			if (this->_nick_history.empty())
-				return ("");
-			if (this->_nick_history.size() < 2)
-				return (this->_nick_history[this->_nick_history.size() - 1]);
-			return (this->_nick_history[this->_nick_history.size() - 2]);
-		}
+		std::string getPreviousNick ();
 		void setNickHistory(std::string nickname) { this->_nick_history.push_back(nickname); }
 		size_t get_G_ID() { return this->g_ID; }
 		void sendMsg(std::string msg);
@@ -101,5 +81,3 @@ class Client
 		bool _registered;
 		bool _identified;
 };
-
-#endif
