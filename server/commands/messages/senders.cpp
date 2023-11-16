@@ -17,6 +17,10 @@ void RPL_UMODEIS(Client &client, std::string mode, std::string type)
 	client.sendMsg(client.getID() + " 221 " + client.getNickname() + " " + mode + type + "\r\n");
 }
 
+void RPL_YOUREOPER(Client &client)
+{
+	client.sendMsg("381 " + client.getNickname() + " :You are now an IRC operator\r\n");
+}
 
 void RPL_WHOISUSER(Client &client)
 {

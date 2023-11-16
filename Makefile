@@ -27,6 +27,7 @@ SRCS			=	main.cpp \
 								whois.cpp \
 								join.cpp \
 								user.cpp \
+								oper.cpp \
 							) \
 							Message.cpp \
 							handler.cpp \
