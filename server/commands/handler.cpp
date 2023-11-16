@@ -38,9 +38,12 @@ bool commandsHandler(Server &server, Client &client) {
 	if (!client.isIdentified())
 		return true;
 	// past this point, the user has registered and identifie
-	
-	 if (message.cmd == "JOIN")
+	if (message.cmd == "JOIN")
 		JOIN(server, client);
+	else if (message.cmd == "QUIT")
+		QUIT(server, client);
+	else if (message.cmd == "WHOIS")
+		WHOIS(server, client);
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM
 
 	// } else if (msg.cmd == "KICK") { // Removes the given nicknames from the specified channel

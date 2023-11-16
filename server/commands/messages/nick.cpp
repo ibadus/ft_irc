@@ -16,6 +16,7 @@ void NICK(Server &server, Client &client) {
 	std::cout << "NICK NUMBERS ARGS " << message.args.size() << std::endl;
 	if (message.args.size() != 1) {
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		client.setOnline(false);
 		return;
 	}
 
@@ -23,6 +24,7 @@ void NICK(Server &server, Client &client) {
 	for (size_t i = 0; i < message.args[0].size(); i++) {
 		if (allowedChars.find(message.args[0].at(i)) == std::string::npos) {
 			client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname.");
+			client.setOnline(false);
 			return;
 		}
 	}
@@ -31,6 +33,7 @@ void NICK(Server &server, Client &client) {
 	for (size_t i = 0; i < clientList.size(); i++) {
 		if (clientList[i].getNickname() == message.args[0]) {
 			client.sendMsg("433 ERR_NICKNAMEINUSE:Nickname is already in use.");
+			client.setOnline(false);
 			return;
 		}
 	}
@@ -44,9 +47,7 @@ void NICK(Server &server, Client &client) {
 			client.setHasNick(true);
 		}
 		if (client.isIdentified())
-		{
 			sendNick(client);
-		}
 		return ;
 	}
 	// std::cout << "MESSAGE ARGS[0]: " << message.args[0] << std::endl;

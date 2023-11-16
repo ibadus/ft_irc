@@ -46,7 +46,7 @@ class Client
 		void setRegistered(bool registered) { this->_registered = registered; }
 
 		bool isOnline() const {return this->_online; }
-		void setOnline(bool online)  { this->_online =  online;}
+		void setOnline(bool online)  { this->_online = online; }
 	
 		bool isIdentified() const { return this->_identified; }
 		void setIdentified(bool identified) { this->_identified = identified; }
@@ -54,8 +54,11 @@ class Client
 		bool getHasNick() const { return this->_hasNickName; }
 		void setHasNick(bool nick)  { this->_hasNickName = nick;}
 
-		bool isOperator() const { return this->_isOperator; }
-		void setOperator(bool isOp) { this->_isOperator = isOp; }
+		bool isOperatorMode() const { return this->_operatorMode; }
+		void setOperatorMode(bool isOp) { this->_operatorMode = isOp; }
+
+		bool isInvisibleMode() const { return this->_invisibleMode; }
+		void setInvisibleMode(bool invisible ) { this->_invisibleMode = invisible; }
 		Server &getServer() { return this->_server; }
  
 	private:
@@ -68,14 +71,14 @@ class Client
 
 		struct epoll_event _conn_event;
 		struct sockaddr_in 	_addrinfo;
-
 		std::vector<std::string> _nick_history;
 		std::string _nickname;
 		std::string _username;
 		std::string _realname;
 		Message _client_msg;
 
-		bool _isOperator;
+		bool _operatorMode;
+		bool _invisibleMode;
 		bool _online;
 		bool _hasNickName;
 		bool _registered;

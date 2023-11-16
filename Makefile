@@ -22,7 +22,9 @@ SRCS			=	main.cpp \
 								pass.cpp \
 								ping.cpp \
 								pong.cpp \
+								quit.cpp \
 								senders.cpp \
+								whois.cpp \
 								join.cpp \
 								user.cpp \
 							) \

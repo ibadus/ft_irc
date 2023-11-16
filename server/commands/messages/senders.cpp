@@ -11,10 +11,17 @@ void sendRplWelcome(Server &server, Client &client)
 	client.sendMsg("001 " + client.getNickname() +  " : Welcome to " + server.getServerName() + " Network, " + client.getID() + "\r\n" );
 }
 
-// void sendRplWhoIsUser(Server &server, Client &client)
-// {
-// 	# define RPL_WHOISUSER(nick, user, host, realname) ( nick + " " + user + " " + host +" * :" + realname + "\r\n")
-// }
+
+void RPL_UMODEIS(Client &client, std::string mode, std::string type)
+{
+	client.sendMsg(client.getID() + " 221 " + client.getNickname() + " " + mode + type + "\r\n");
+}
+
+
+void RPL_WHOISUSER(Client &client)
+{
+	client.sendMsg(client.getNickname() + " " + client.getUserName() + " " + client.getHost() + " * :" + client.getRealName() + "\r\n");
+}
 
 void sendRplTopic(Client &client, Channel &channel)
 {
@@ -60,7 +67,27 @@ void sendNick(Client &client)
 	client.sendMsg(":" + client.getPreviousNick() + " NICK " + client.getNickname() + "\r\n");
 }
 
-// void sendQUIT()
-// {
-// 	":" + old_nick + " NICK " + nick + "\r\n"
-// }
+void sendQUIT(Client &client)
+{
+	client.sendMsg(client.getID() + " QUIT\r\n");
+}
+
+void sendQUITREASON(Client &client, std::string message)
+{
+	client.sendMsg(client.getID() + " QUIT " + message + "\r\n");
+}
+
+void sendQuitToAllExceptUser(Server &server, Client &client, std::string reason)
+{
+	std::string nickname = client.getNickname();
+	for( std::vector<Client>::iterator it = server.getClientList().begin(); it != server.getClientList().end(); it++ )
+	{
+		if (it->getNickname() != nickname)
+		{
+			if (reason.size() != 0)
+				sendQUITREASON(*it, reason);
+			else 
+				sendQUIT(*it);
+		}
+	}
+}
