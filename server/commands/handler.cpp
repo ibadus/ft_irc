@@ -50,6 +50,8 @@ bool commandsHandler(Server &server, Client &client) {
 		INVITE(server, client);
 	else if (message.cmd == "PART")
 		PART(server, client);
+	else if (message.cmd == "KICK")
+		KICK(server, client);
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM
 
 	// } else if (msg.cmd == "KICK") { // Removes the given nicknames from the specified channel
