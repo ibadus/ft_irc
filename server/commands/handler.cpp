@@ -15,28 +15,43 @@ bool commandsHandler(Server &server, Client &client) {
 	Message message = client.getClientMessage();
 
 	std::cout << TEXT_GREEN << "[" << message.msg.length() << "b] " << client.getFD() << "(" << client.ID << ")" << "cmd: " << message.cmd << TEXT_RESET << std::endl;
+
 	if (message.cmd == "PASS") {
 		PASS(server, client);
-	} else if (message.cmd == "PING") { // Sends a CTCP PING request to a nickname or a channel
-		PING(client);
+	} else if (message.cmd == "PING") { 
+		PONG(client);
+	}
+	else if (message.cmd == "PONG") {
+		PING(server, client);
+	}
+	else if (message.cmd == "NICK") { // Changes your nickname on the active server
+		NICK(server, client);
+	}
+	else if (message.cmd == "USER") 
+	{
+		USER(server, client);
 	}
 
 	if (!client.isRegistered())
 		return true;
 	// past this point, the client is registered
-
-	if (message.cmd == "NICK") { // Changes your nickname on the active server
-		NICK(server, client);
-	} else if (message.cmd == "USER") {
-
-	}
-
 	if (!client.isIdentified())
 		return true;
-	// past this point, the user has registered and identified
-
-	// if (msg.cmd == "JOIN") {
-
+	// past this point, the user has registered and identifie
+	if (message.cmd == "JOIN")
+		JOIN(server, client);
+	else if (message.cmd == "QUIT")
+		QUIT(server, client);
+	else if (message.cmd == "WHOIS")
+		WHOIS(server, client);
+	else if (message.cmd == "OPER")
+		OPER(client);
+	else if (message.cmd == "INVITE")
+		INVITE(server, client);
+	else if (message.cmd == "PART")
+		PART(server, client);
+	else if (message.cmd == "KICK")
+		KICK(server, client);
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM
 
 	// } else if (msg.cmd == "KICK") { // Removes the given nicknames from the specified channel

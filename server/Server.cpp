@@ -1,6 +1,6 @@
 #include "Server.hpp"
-#include "Client.hpp"
 #include "Channel.hpp"
+#include "Client.hpp"
 #include "socket.hpp"
 #include "utils.hpp"
 #include "signals.hpp"
@@ -20,25 +20,24 @@
 
 te_status global_status = e_STOP;
 
-Server::Server(const unsigned int port, const std::string &password): _password(password.c_str()), _port(port), _socket_fd(0), _events(std::vector<struct epoll_event>(EPOLL_MAX_EVENTS)) {
+Server::Server(const std::string &name, const unsigned int port, const std::string &password): _name(name.c_str()), _password(password.c_str()), _port(port), _socket_fd(0), _events(std::vector<struct epoll_event>(EPOLL_MAX_EVENTS)) {
 	this->_socket_fd = initSocket(this->_port);
 	if (this->_socket_fd < 0)
 		throw std::runtime_error("Could not start server.");
 	this->_port = getPort(this->_socket_fd);
 }
 
-Server::~Server() {
+Server::~Server() {class server;
+
 	// TODO: free alloc memory
 }
 
 
 void Server::flush() {
 	std::cout << TEXT_YELLOW << "Flushing..." << TEXT_RESET << std::endl;
-
 	// TODO: clean epoll
 	this->_epoll_fd < 0 ? close(this->_epoll_fd) : 0;
 	this->_event_count = 0;
-
 	this->disconnectAllClients();
 	// TODO: delete channels
 	this->_channels.clear();
@@ -76,6 +75,38 @@ Client &Server::getClientByFD(const int fd) {
 	return *this->_clients.end();
 }
 
+
+Client &Server::getClient(std::string ID)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getID() == ID) {
+			return *it;
+		}
+	}
+	return *this->_clients.end();
+}
+
+Client &Server::getClientByName(std::string nickName)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getNickname() == nickName) {
+			return *it;
+		}
+	}
+	return *this->_clients.end();
+}
+
+
+bool Server::isClientExisting(std::string nickName)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getNickname() == nickName) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool Server::initEpoll() {
 	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd < 0) {
@@ -101,7 +132,6 @@ bool Server::initEpoll() {
 		global_status = e_STOP;
 		return false;
 	}
-
 	return true;
 }
 
@@ -151,7 +181,6 @@ bool Server::handlePolling() {
 			}
 		}
 	}
-
 	return true;
 }
 
@@ -197,7 +226,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 		return false;
 	}
 
-	Client client(client_fd, this, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
+	Client client(client_fd, *this, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
 	this->_clients.push_back(client);
 	std:: cout << TEXT_GREEN << "New connection from Client(" << client.getFD() << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
 
@@ -308,4 +337,34 @@ void Server::start() {
 
 	std::cout << TEXT_YELLOW << "Server stopped, exiting..." << TEXT_RESET << std::endl;
 	close(this->_socket_fd);
+}
+
+
+bool	Server::isChannelExisting(std::string name)
+{
+	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+		if (it->getChannelName() == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+void Server::addChannel(std::string chanName)
+{
+	if (this->isChannelExisting(chanName))
+		return;
+	_channels.push_back(Channel(*this, chanName));
+}
+
+
+Channel &Server::getChannel(std::string chanName)
+{
+	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+		if (it->getChannelName() == chanName) {
+			return *it;
+		}
+	}
+	return *this->_channels.end();
 }

@@ -1,13 +1,10 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
-
-#include "Client.hpp"
-#include "Channel.hpp"
+#pragma once
 
 #include <string>
 #include <vector>
 #include <sys/epoll.h>
-
+#include "Client.hpp"
+#include "Channel.hpp"
 // Defines the maximum size of the batch of IO events to process on
 // each loop iteration. A larger number will increase throughput but
 // decrease concurrency.
@@ -21,16 +18,25 @@
 class Client;
 
 class Server {
-	public:
-		Server(const unsigned int port, const std::string &password);
+		public:
+		Server(const std::string &name, const unsigned int port, const std::string &password);
 		~Server();
-
-		std::vector<Client> getClientList() const { return this->_clients; }
-		std::string getSeverPassword() const { return this->_password; }
+		std::string getServerPassword() const { return this->_password; }
+		std::vector<Client> getClientList() const { return this->_clients;}
+		std::vector<Channel> getChannelList() const { return this->_channels; }
+		Channel &getChannel(std::string chanName);
+		void addChannel(std::string chanName);
+		bool	isChannelExisting(std::string name);
+		bool	isClientExisting(std::string Nickname);
+		Client &getClientByFD(const int fd);
+		Client &getClient(std::string ID);
+		Client &getClientByName(std::string nickName);
+		std::string getServerName() {return this->_name;}
 		void start();
 		void flush();
 
 	private:
+		std::string _name;
 		std::string _password;
 		unsigned int _port;
 		int _socket_fd;
@@ -46,12 +52,8 @@ class Server {
 		void disconnectClient(const int fd);
 		void disconnectAllClients();
 		void sendMsgToAll(std::string msg);
-		Client &getClientByFD(const int fd);
-
 		bool initEpoll();
 		bool handlePolling();
 		bool handleNewConnection(struct epoll_event &event);
 		bool handleMessages(const int fd);
 };
-
-#endif

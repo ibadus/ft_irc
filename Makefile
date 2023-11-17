@@ -21,6 +21,16 @@ SRCS			=	main.cpp \
 								nick.cpp \
 								pass.cpp \
 								ping.cpp \
+								pong.cpp \
+								quit.cpp \
+								senders.cpp \
+								whois.cpp \
+								join.cpp \
+								user.cpp \
+								invite.cpp \
+								kick.cpp \
+								part.cpp \
+								oper.cpp \
 							) \
 							Message.cpp \
 							handler.cpp \
