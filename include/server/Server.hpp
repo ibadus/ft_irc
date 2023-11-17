@@ -27,8 +27,10 @@ class Server {
 		Channel &getChannel(std::string chanName);
 		void addChannel(std::string chanName);
 		bool	isChannelExisting(std::string name);
+		bool	isClientExisting(std::string Nickname);
 		Client &getClientByFD(const int fd);
 		Client &getClient(std::string ID);
+		Client &getClientByName(std::string nickName);
 		std::string getServerName() {return this->_name;}
 		void start();
 		void flush();

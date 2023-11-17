@@ -27,6 +27,11 @@ void RPL_WHOISUSER(Client &client)
 	client.sendMsg(client.getNickname() + " " + client.getUserName() + " " + client.getHost() + " * :" + client.getRealName() + "\r\n");
 }
 
+void RPL_INVITING(Client &client, std::string invitenick, std::string channel)
+{
+	client.sendMsg("341 " + client.getID() + " " + invitenick + " " + channel + "\r\n");
+}
+
 void sendRplTopic(Client &client, Channel &channel)
 {
 	client.sendMsg("332 " + client.getID() + " " + channel.getChannelName() + " :" + channel.getTopic() + "\r\n");

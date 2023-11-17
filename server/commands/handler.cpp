@@ -46,6 +46,8 @@ bool commandsHandler(Server &server, Client &client) {
 		WHOIS(server, client);
 	else if (message.cmd == "OPER")
 		OPER(client);
+	else if (message.cmd == "INVITE")
+		INVITE(server, client);
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM
 
 	// } else if (msg.cmd == "KICK") { // Removes the given nicknames from the specified channel

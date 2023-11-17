@@ -86,6 +86,27 @@ Client &Server::getClient(std::string ID)
 	return *this->_clients.end();
 }
 
+Client &Server::getClientByName(std::string nickName)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getNickname() == nickName) {
+			return *it;
+		}
+	}
+	return *this->_clients.end();
+}
+
+
+bool Server::isClientExisting(std::string nickName)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getNickname() == nickName) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool Server::initEpoll() {
 	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd < 0) {
