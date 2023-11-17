@@ -29,6 +29,7 @@ SRCS			=	main.cpp \
 								user.cpp \
 								invite.cpp \
 								kick.cpp \
+								names.cpp \
 								part.cpp \
 								oper.cpp \
 							) \

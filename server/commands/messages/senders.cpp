@@ -111,3 +111,13 @@ void sendPARTREASON(Server &server, Client &client, std::string channel_name, st
 {
 	server.getChannel(channel_name).sendMessageToClients(":" + client.getID() + " PART " + channel_name + " :" + reason + "\r\n", "");
 }
+
+void RPL_NAMREPLY2(Client &client, std::string nickName, std::string channelName)
+{
+	client.sendMsg("353 =" + channelName + ":" + nickName + "\r\n");
+}
+
+void RPL_ENDOFNAMES2(Client &client, std::string channelName)
+{
+	client.sendMsg(client.getID() + "366 " + channelName + " :End of NAMES list\r\n");
+}

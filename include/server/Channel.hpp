@@ -20,6 +20,7 @@ class Channel
 		void	removeBanned(std::string ID);
 		void	removeOperator(std::string ID);
 		bool	isClientOperatorChannel(std::string ID);
+		std::set<std::string> getClientConnectList() const { return _clientConnected; };
 		void	sendMessageToClients( std::string msg, std::string sender);
 		bool 	getChannelMode() { return this->_isInviteOnly; }
 		std::set<std::string> getClientOperator() { return this->_clientOperators; }
