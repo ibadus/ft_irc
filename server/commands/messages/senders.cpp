@@ -100,3 +100,14 @@ void sendQuitToAllExceptUser(Server &server, Client &client, std::string reason)
 		}
 	}
 }
+
+
+void sendPART(Server &server, Client &client, std::string channel_name)
+{
+	server.getChannel(channel_name).sendMessageToClients(":" + client.getID() + " PART " + channel_name + "\r\n", "");
+}
+
+void sendPARTREASON(Server &server, Client &client, std::string channel_name, std::string reason)
+{
+	server.getChannel(channel_name).sendMessageToClients(":" + client.getID() + " PART " + channel_name + " :" + reason + "\r\n", "");
+}
