@@ -52,6 +52,4 @@ void NICK(Server &server, Client &client) {
 	}
 	// std::cout << "MESSAGE ARGS[0]: " << message.args[0] << std::endl;
 	// std::cout << "CLIENT NICKNAME:  " << client.getNickname() << std::endl;
-
-
 }

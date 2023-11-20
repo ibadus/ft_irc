@@ -63,7 +63,6 @@ bool	Channel::isClientBanned(std::string ID)
 	return false;
 }
 
-// fonction prenant initialement un objet Client en argument, c'est pour ca qu'elle est codé de cette facon
 void Channel::addClient(std::string ID)
 {
 	Client& client = this->_server.getClient(ID);
@@ -104,7 +103,6 @@ void Channel::removeBanned(std::string ID)
 	this->_clientBanned.erase(ID);
 }
 
-// fonction prenant initialement un objet Client en argument, c'est pour ca qu'elle est codé de cette facon
 void Channel::removeOperator(std::string ID)
 {
 	int	isOperatorChannel = false;

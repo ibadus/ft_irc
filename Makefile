@@ -31,6 +31,7 @@ SRCS			=	main.cpp \
 								kick.cpp \
 								names.cpp \
 								part.cpp \
+								privmsg.cpp \
 								oper.cpp \
 							) \
 							Message.cpp \
