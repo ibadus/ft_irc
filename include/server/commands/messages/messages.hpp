@@ -19,6 +19,7 @@ void OPER(Client &client);
 void NICK(Server &server, Client &client);
 void JOIN(Server &server, Client &client);
 void USER(Server &server, Client &client);
+void	NOTICE(Server &server, Client &client);
 void	INVITE(Server &server, Client &client);
 void	WHOIS(Server &server, Client &client);
 void	PART(Server &server, Client &client);
