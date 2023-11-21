@@ -30,6 +30,7 @@ SRCS			=	main.cpp \
 								invite.cpp \
 								kick.cpp \
 								names.cpp \
+								mode.cpp \
 								part.cpp \
 								privmsg.cpp \
 								notice.cpp \

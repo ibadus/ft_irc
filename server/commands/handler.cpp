@@ -30,6 +30,9 @@ bool commandsHandler(Server &server, Client &client) {
 	else if (message.cmd == "USER") 
 	{
 		USER(server, client);
+	} else if (message.cmd == "MODE")
+	{
+		MODE(server, client);
 	}
 
 	if (!client.isRegistered())
@@ -54,6 +57,8 @@ bool commandsHandler(Server &server, Client &client) {
 		KICK(server, client);
 	else if (message.cmd == "PRIVMSG")
 		PRIVMSG(server, client);
+	else if (message.cmd == "NOTICE")
+		NOTICE(server, client);
 	// } else if (msg.cmd == "MSG" || msg.cmd == "PRIVMSG" || msg.cmd == "NOTICE") { // DM
 
 	// } else if (msg.cmd == "KICK") { // Removes the given nicknames from the specified channel

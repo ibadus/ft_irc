@@ -23,6 +23,7 @@ class Channel
 		std::set<std::string> getClientConnectList() const { return _clientConnected; };
 		void	sendMessageToClients( std::string msg, std::string sender);
 		bool 	getChannelMode() { return this->_isInviteOnly; }
+		void 	setChannelMode(bool isInviteOnly) { this->_isInviteOnly = isInviteOnly; }
 		std::set<std::string> getClientOperator() { return this->_clientOperators; }
 		std::string getChannelName() const;
 		std::string getTopic() const;

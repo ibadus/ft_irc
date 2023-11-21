@@ -14,7 +14,7 @@ void sendRplWelcome(Server &server, Client &client)
 
 void RPL_UMODEIS(Client &client, std::string mode, std::string type)
 {
-	client.sendMsg(client.getID() + " 221 " + client.getNickname() + " " + mode + type + "\r\n");
+	client.sendMsg(client.getIDCMD() + " 221 " + client.getNickname() + " " + mode + type + "\r\n");
 }
 
 void RPL_YOUREOPER(Client &client)
@@ -70,9 +70,6 @@ void sendPING(Client &client, Message &message)
 
 void sendNick(Client &client)
 {
-	std::cout <<  "CLIENT PREVIOUS NICK :" << client.getPreviousNick() << std::endl;
-	std::cout <<  "CLIENT NEW NICK :" << client.getNickname() << std::endl;
-
 	client.sendMsg(":" + client.getPreviousNick() + " NICK " + client.getNickname() + "\r\n");
 }
 
@@ -119,5 +116,15 @@ void RPL_NAMREPLY2(Client &client, std::string nickName, std::string channelName
 
 void RPL_ENDOFNAMES2(Client &client, std::string channelName)
 {
-	client.sendMsg(client.getID() + "366 " + channelName + " :End of NAMES list\r\n");
+	client.sendMsg(client.getIDCMD() + "366 " + channelName + " :End of NAMES list\r\n");
+}
+
+void RPL_CHANNELMODEIS(Client &client, std::string channelName, std::string mode)
+{
+	client.sendMsg( client.getID() + " 324 " + client.getNickname() + " " + channelName + " " + mode + "\r\n");	
+}
+
+void RPL_CHANNELMODEISTOALL(Client &client, std::string channelName, std::string mode)
+{
+	client.sendMsg( client.getID() + " 324 " + client.getNickname() + " " + channelName + " " + mode + "\r\n");
 }
