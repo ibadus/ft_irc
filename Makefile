@@ -25,6 +25,7 @@ SRCS			=	main.cpp \
 								quit.cpp \
 								senders.cpp \
 								whois.cpp \
+								topic.cpp \
 								join.cpp \
 								user.cpp \
 								invite.cpp \

@@ -27,6 +27,7 @@ class Channel
 		std::set<std::string> getClientOperator() { return this->_clientOperators; }
 		std::string getChannelName() const;
 		std::string getTopic() const;
+		void setTopic(std::string topic) { this->_topic = topic; }
 		Server &getServer() const;
 		Channel& operator=(const Channel& other);
 		bool operator==(const Channel &other);
