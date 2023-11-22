@@ -27,6 +27,7 @@ SRCS			=	main.cpp \
 								whois.cpp \
 								topic.cpp \
 								join.cpp \
+								list.cpp \
 								user.cpp \
 								invite.cpp \
 								kick.cpp \

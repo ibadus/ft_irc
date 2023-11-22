@@ -61,6 +61,8 @@ bool commandsHandler(Server &server, Client &client) {
 		NOTICE(server, client);
 	else if (message.cmd == "TOPIC")
 		TOPIC(server, client);
+	else if (message.cmd == "LIST")
+		LIST(server, client);
 
 	return true;
 }

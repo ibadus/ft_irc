@@ -27,6 +27,7 @@ void	PART(Server &server, Client &client);
 void    KICK(Server &server, Client &client);
 void	TOPIC(Server &server, Client &client);
 void	NAMES(Server &server, Client &client);
+void	LIST(Server &server, Client  &client);
 void	PRIVMSG(Server &server, Client &client);
 std::string sendJOIN(Client &client, std::string chanName);
 bool	isValidParsingINVITE(Server &server, Client &client);

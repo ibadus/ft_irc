@@ -41,6 +41,7 @@ bool Client::operator==(const Client &other)  {
 Client::~Client() {}
 
 void Client::sendMsg(std::string msg) {
+	std::cout << std::string(TEXT_BLUE) << "message send on --> " << this->getFD() << " : " << msg << std::string(TEXT_RESET) << std::endl;
 	send(this->_fd, msg.c_str(), msg.length(), 0);
 }
 
