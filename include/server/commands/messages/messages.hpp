@@ -36,11 +36,11 @@ void	addChannelMode(Server &server, Client &client, std::vector<std::string> cmd
 void	addUserMode(Server &server, Client &client, std::vector<std::string> cmd);
 int		updateUserModes(Client &client, char sign, char mode);
 int		handleInviteOnlyMode(Server &server, Client &client, char sign, char mode, std::string chan);
-int		handleOperatorChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan );
-int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan );
-int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan );
-int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan );
-int		parseModes(Server &server, Client &client, std::string modes, int modeType, std::string user, std::string chan );
+int		handleOperatorChannelMode(Server &server, Client &client, char sign, char mode, std::string key, std::string chan );
+int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode, std::string key, std::string chan );
+int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, char mode, std::string chan );
+int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode, std::string key, std::string chan );
+int		parseModes(Server &server, Client &client, std::string modes, int modeType, std::string key, std::string chan );
 bool	parsingErrorChannel(Server &server, Client &client, std::vector<std::string> cmd);
 void    sendRplNoTopic(Client &client, Channel &channel);
 bool	isValidParsingKICK(Server &server, Client &client);

@@ -7,9 +7,11 @@
 
 
 Channel::Channel(Server& serv, std::string channel_name):
-_server(serv), _name(channel_name), _isInviteOnly(false)
+_server(serv), _name(channel_name), _isInviteOnly(false), _isPasswordOnly(false), _isSizeLimit(false), _isTopicLimited(false)
 {
 	this->_topic = "";
+	this->_sizeLimit = 0;
+	this->passw = "";
 }
 
 Channel::~Channel(){}

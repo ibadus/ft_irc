@@ -10,7 +10,7 @@
 #define USER_MODE 0
 #define CHANNEL_MODE 1
 
-int		parseModes(Server &server, Client &client, std::string modes, int modeType, std::string user, std::string chan )
+int		parseModes(Server &server, Client &client, std::string modes, int modeType, std::string arg, std::string chan )
 {
 	size_t j = 0;
 	for (j = 0; j < modes.size(); j++)
@@ -21,10 +21,22 @@ int		parseModes(Server &server, Client &client, std::string modes, int modeType,
 				updateUserModes(client, modes[j], modes[j + 1]);
 			else
 			{
-				if (user.empty())
-					handleInviteOnlyMode(server, client, modes[j], modes[j + 1], chan);
-				else
-					handleOperatorChannelMode(server, client, modes[j], modes[j + 1], user, chan);
+				switch(modes[j + 1])
+				{
+					case 'i':
+						handleInviteOnlyMode(server, client, modes[j], modes[j + 1], chan);
+						break;
+					case 'o':
+						handleOperatorChannelMode(server, client, modes[j], modes[j + 1], arg, chan);
+						break;
+					case 'k':
+						handlePasswChannelMode(server, client, modes[j], modes[j + 1], arg, chan);
+						break;
+					case 't':
+						handleTopicRestrictChannelMode(server, client, modes[j], modes[j + 1], chan);
+					case 'l':
+						handleSizeChannelMode(server, client, modes[j], modes[j + 1], args,  chan);
+				}
 			}
 		}
 	}
@@ -57,12 +69,13 @@ int		handleOperatorChannelMode(Server &server, Client &client, char sign, char m
 }
 
 
-int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
+int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode, std::string key, std::string chan )
 {
 	if (sign == '+')
 	{
 		if (mode == 'k')
 		{
+			server.getChannel(chan).setChannelPassw(key);
 			server.getChannel(chan).setPasswMode(true);
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+k" + "\r\n", "");
 			return (0);
@@ -83,7 +96,7 @@ int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode
 }
 
 
-int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
+int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, char mode, std::string chan )
 {
 	if (sign == '+')
 	{
@@ -110,12 +123,27 @@ int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, c
 
 
 
-int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
+int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode, std::string key, std::string chan )
 {
+
 	if (sign == '+')
 	{
 		if (mode == 'l')
 		{
+			stringstream stream(key);
+			if (stream.fail()) {
+    			std::cout << "This is not an integer\n" << std::endl;
+    			stream.clear();
+    			return (0);
+			}
+			size_t output;
+			stream >> output;
+			if (server.getChannel(chan).getSizeLimit() <= static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()))
+			{
+				std::cout << "Size Limit must be smaller than the current connected users numbers." << std::endl;
+				return (0);
+			}
+			server.getChannel(chan).setSizeLimit(output);
 			server.getChannel(chan).setSizeLimitMode(true);
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+l" + "\r\n", "");
 			return (0);
@@ -278,7 +306,7 @@ void	addChannelMode(Server &server, Client &client, std::vector<std::string> cmd
 	if (!parsingErrorChannel(server, client, cmd))
 		return;
 	std::string targetName = "";
-	if (cmd.size() == 3)
+	if (cmd.size() > 3)
 		targetName = cmd[2];
 	parseModes(server, client, cmd[1], CHANNEL_MODE, targetName, cmd[0]);
 	return;

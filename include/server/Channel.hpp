@@ -24,10 +24,16 @@ class Channel
 		void	sendMessageToClients( std::string msg, std::string sender);
 
 		bool 	getChannelPassw() { return this->_passwd; }
-		void 	setChannelPassw(bool passw) { this->_passwd = passw; }
+		void 	setChannelPassw(std:string passw) { this->_passwd = passw; }
 
 		bool 	getSizeLimit() { return this->_sizeLimit; }
-		void 	setSizeLimit(bool size) { this->_sizeLimit = size; }
+		void 	setSizeLimit(size_t size) 
+		{
+			stringstream stream(size);
+			size_t output;
+			stream >> output;
+			this->_sizeLimit = size;
+		}
 
 		bool 	getTopicLimitMode() { return this->_isTopicLimited; }
 		void 	setTopicLimitMode(bool topicLimit) { this->_isTopicLimited = topicLimit; }
