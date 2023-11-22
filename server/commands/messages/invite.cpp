@@ -39,7 +39,7 @@ bool	isValidParsingINVITE(Server &server, Client &client)
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
 		return (false);  
   	}
-  	if (server.getChannel(message.args[1]).getChannelMode() == true)
+  	if (server.getChannel(message.args[1]).getInviteMode() == true)
   	{
 		if (!server.getChannel(message.args[1]).isClientOperatorChannel(client.getID()))
 		{

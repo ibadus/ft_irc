@@ -35,7 +35,7 @@ void JOIN(Server &server, Client &client)
 			{
 				server.addChannel(channel_name);
 			}
-			if (server.getChannel(channel_name).getChannelMode())
+			if (server.getChannel(channel_name).getInviteMode())
 			{
 				client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO : PUT THE RIGHT MESSAGE ERROR
 				return;

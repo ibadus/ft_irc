@@ -56,13 +56,93 @@ int		handleOperatorChannelMode(Server &server, Client &client, char sign, char m
 	return (0);
 }
 
+
+int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
+{
+	if (sign == '+')
+	{
+		if (mode == 'k')
+		{
+			server.getChannel(chan).setPasswMode(true);
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+k" + "\r\n", "");
+			return (0);
+		}
+	}
+	else if (sign == '-')
+	{
+		if (mode == 'k')
+		{
+			server.getChannel(chan).setPasswMode(false);
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-k" + "\r\n", "");
+			return(0);
+		}
+	}
+	else
+		client.sendMsg(client.getID() + " 472 " + mode + " :is unknown mode char to me\r\n");
+	return (0);
+}
+
+
+int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
+{
+	if (sign == '+')
+	{
+		if (mode == 't')
+		{
+			server.getChannel(chan).setTopicLimitMode(true);
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+t" + "\r\n", "");
+			return (0);
+		}
+	}
+	else if (sign == '-')
+	{
+		if (mode == 't')
+		{
+			server.getChannel(chan).setTopicLimitMode(false);
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-t" + "\r\n", "");
+			return(0);
+		}
+	}
+	else
+		client.sendMsg(client.getID() + " 472 " + mode + " :is unknown mode char to me\r\n");
+	return (0);
+}
+
+
+
+int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
+{
+	if (sign == '+')
+	{
+		if (mode == 'l')
+		{
+			server.getChannel(chan).setSizeLimitMode(true);
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+l" + "\r\n", "");
+			return (0);
+		}
+	}
+	else if (sign == '-')
+	{
+		if (mode == 'l')
+		{
+			server.getChannel(chan).setSizeLimitMode(false);
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-l" + "\r\n", "");
+			return(0);
+		}
+	}
+	else
+		client.sendMsg(client.getID() + " 472 " + mode + " :is unknown mode char to me\r\n");
+	return (0);
+}
+
+
 int		handleInviteOnlyMode(Server &server, Client &client, char sign, char mode, std::string chan)
 {
 	if (sign == '+')
 	{
 		if (mode == 'i')
 		{
-			server.getChannel(chan).setChannelMode(true);
+			server.getChannel(chan).setInviteMode(true);
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+i" + "\r\n", "");
 			return (0);
 		}
@@ -71,7 +151,7 @@ int		handleInviteOnlyMode(Server &server, Client &client, char sign, char mode, 
 	{
 		if (mode == 'i')
 		{
-			server.getChannel(chan).setChannelMode(false);
+			server.getChannel(chan).setInviteMode(false);
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-1" + "\r\n", "");
 			return(0);
 		}
@@ -128,7 +208,7 @@ bool	parsingErrorChannel(Server &server, Client &client, std::vector<std::string
 	{
 		if (server.isChannelExisting(cmd[0]) == true)
 		{
-			if (server.getChannel(cmd[0]).getChannelMode() == true)
+			if (server.getChannel(cmd[0]).getInviteMode() == true)
 				RPL_CHANNELMODEIS(client, cmd[0], "+i");
 			else
 				RPL_CHANNELMODEIS(client, cmd[0], "-i");

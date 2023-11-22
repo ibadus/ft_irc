@@ -22,8 +22,19 @@ class Channel
 		bool	isClientOperatorChannel(std::string ID);
 		std::set<std::string> getClientConnectList() const { return _clientConnected; };
 		void	sendMessageToClients( std::string msg, std::string sender);
-		bool 	getChannelMode() { return this->_isInviteOnly; }
-		void 	setChannelMode(bool isInviteOnly) { this->_isInviteOnly = isInviteOnly; }
+
+		bool 	getTopicLimitMode() { return this->_isTopicLimited; }
+		void 	setTopicLimitMode(bool topicLimit) { this->_isTopicLimited = topicLimit; }
+
+		bool 	getSizeLimitMode() { return this->_isSizeLimit; }
+		void 	setSizeLimitMode(bool sizeLimit) { this->_isSizeLimit = sizeLimit; }
+
+		bool 	getPasswMode() { return this->_isPasswordOnly; }
+		void 	setPasswMode(bool passwordOnly) { this->_isPasswordOnly = passwordOnly; }
+		
+		bool 	getInviteMode() { return this->_isInviteOnly; }
+		void 	setInviteMode(bool isInviteOnly) { this->_isInviteOnly = isInviteOnly; }
+
 		std::set<std::string> getClientOperator() { return this->_clientOperators; }
 		std::string getChannelName() const;
 		std::string getTopic() const;
@@ -39,4 +50,7 @@ class Channel
 		std::set<std::string>			_clientBanned; // ID is used to identify a client
 		std::set<std::string>			_clientOperators; 
 		bool							_isInviteOnly;
+		bool							_isPasswordOnly;
+		bool							_isSizeLimit;
+		bool							_isTopicLimited;
 };
