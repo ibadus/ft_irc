@@ -37,7 +37,7 @@ void	TOPIC(Server &server, Client &client)
 	}
 	else
 	{
-		if (!server.getChannel(channel).isClientOperatorChannel(client.getID()))
+		if (server.getChannel(channel).getTopicLimitMode() and !server.getChannel(channel).isClientOperatorChannel(client.getID()))
 		{
 			return ;
 		}

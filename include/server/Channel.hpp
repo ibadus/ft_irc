@@ -23,6 +23,12 @@ class Channel
 		std::set<std::string> getClientConnectList() const { return _clientConnected; };
 		void	sendMessageToClients( std::string msg, std::string sender);
 
+		bool 	getChannelPassw() { return this->_passwd; }
+		void 	setChannelPassw(bool passw) { this->_passwd = passw; }
+
+		bool 	getSizeLimit() { return this->_sizeLimit; }
+		void 	setSizeLimit(bool size) { this->_sizeLimit = size; }
+
 		bool 	getTopicLimitMode() { return this->_isTopicLimited; }
 		void 	setTopicLimitMode(bool topicLimit) { this->_isTopicLimited = topicLimit; }
 
@@ -46,6 +52,8 @@ class Channel
 		Server&							_server;
 		std::string						_name;
 		std::string						_topic;
+		size_t							_sizeLimit;
+		std::string						_passwd;
 		std::set<std::string>			_clientConnected; // ID is used to identify a client
 		std::set<std::string>			_clientBanned; // ID is used to identify a client
 		std::set<std::string>			_clientOperators; 
