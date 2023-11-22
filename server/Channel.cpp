@@ -11,7 +11,7 @@ _server(serv), _name(channel_name), _isInviteOnly(false), _isPasswordOnly(false)
 {
 	this->_topic = "";
 	this->_sizeLimit = 0;
-	this->passw = "";
+	this->_passwd = "";
 }
 
 Channel::~Channel(){}

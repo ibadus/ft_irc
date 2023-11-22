@@ -34,8 +34,10 @@ int		parseModes(Server &server, Client &client, std::string modes, int modeType,
 						break;
 					case 't':
 						handleTopicRestrictChannelMode(server, client, modes[j], modes[j + 1], chan);
+						break;
 					case 'l':
-						handleSizeChannelMode(server, client, modes[j], modes[j + 1], args,  chan);
+						handleSizeChannelMode(server, client, modes[j], modes[j + 1], arg,  chan);
+						break;
 				}
 			}
 		}
@@ -130,7 +132,7 @@ int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode,
 	{
 		if (mode == 'l')
 		{
-			stringstream stream(key);
+			std::stringstream stream(key);
 			if (stream.fail()) {
     			std::cout << "This is not an integer\n" << std::endl;
     			stream.clear();

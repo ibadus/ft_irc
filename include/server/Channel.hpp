@@ -2,6 +2,7 @@
 
 #include "Server.hpp"
 #include "../messages/Message.hpp"
+#include <sstream>      // std::stringstream
 #include <set>
 
 class Server;
@@ -17,7 +18,7 @@ class Channel
 		bool	isClientBanned(std::string ID);
 		void	addClient(std::string ID);
 		void	addOperator(std::string ID);
-		void	addInvited(std::string ID)
+		void	addInvited(std::string ID);
 		void	removeConnected(std::string ID);
 		void	removeBanned(std::string ID);
 		void	removeOperator(std::string ID);
@@ -25,15 +26,12 @@ class Channel
 		std::set<std::string> getClientConnectList() const { return _clientConnected; };
 		void	sendMessageToClients( std::string msg, std::string sender);
 
-		bool 	getChannelPassw() { return this->_passwd; }
-		void 	setChannelPassw(std:string passw) { this->_passwd = passw; }
+		std::string 	getChannelPassw() { return this->_passwd; }
+		void 	setChannelPassw(std::string passw) { this->_passwd = passw; }
 
 		bool 	getSizeLimit() { return this->_sizeLimit; }
 		void 	setSizeLimit(size_t size) 
 		{
-			stringstream stream(size);
-			size_t output;
-			stream >> output;
 			this->_sizeLimit = size;
 		}
 
