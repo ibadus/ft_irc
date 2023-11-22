@@ -20,7 +20,7 @@ void JOIN(Server &server, Client &client)
     std::vector<std::string> listOfChannelToAdd = split(message.args[0], ",");
 	std::string channel_name;
 
-    	for (std::vector<std::string>::iterator it = listOfChannelToAdd.begin(); it != listOfChannelToAdd.end(); it++)
+    for (std::vector<std::string>::iterator it = listOfChannelToAdd.begin(); it != listOfChannelToAdd.end(); it++)
 	{
 		channel_name = *it;
 		toLowerStr(channel_name);
@@ -36,6 +36,16 @@ void JOIN(Server &server, Client &client)
 				server.addChannel(channel_name);
 			}
 			if (server.getChannel(channel_name).getInviteMode())
+			{
+				client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO : PUT THE RIGHT MESSAGE ERROR
+				return;
+			}
+			if (server.getChannel(channel_name).getPasswMode() && ((int)message.args.size() < 2 || server.getChannel(channel_name).getChannelPassw() != args[1]))
+			{
+				client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO : PUT THE RIGHT MESSAGE ERROR
+				return;
+			}
+			if (server.getChannel(channel_name).getSizeLimitMode() && (static_cast<int>(server.getChannel(channel_name).getSizeLimit()) >= static_cast<int>(server.getChannel(channel_name).getClientConnectList().size())))
 			{
 				client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO : PUT THE RIGHT MESSAGE ERROR
 				return;
