@@ -58,6 +58,7 @@ void	INVITE(Server &server, Client &client)
 	if (!isValidParsingINVITE(server, client))
 		return;
 	server.getChannel(message.args[1]).addClient(server.getClientByName(message.args[0]).getID());
+	server.getChannel(message.args[1]).addInvited(server.getClientByName(message.args[0]).getID());
     RPL_INVITING(client, message.args[0], message.args[1]);
 	server.getClientByName(message.args[0]).sendMsg("341 " + client.getID() + " " + message.args[0] + " " + message.args[1] + "\r\n");
 	return ;

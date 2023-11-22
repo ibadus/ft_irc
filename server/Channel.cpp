@@ -23,6 +23,13 @@ bool Channel::isClientOperatorChannel(std::string ID)
 	return false;
 }
 
+bool Channel::isClientInvited(std::string ID)
+{
+	if (this->_clientInvited.find(ID) != this->_clientInvited.end())
+		return (true);
+	return false;
+}
+
 Channel& Channel::operator=(const Channel& other) {
 	if (this != &other) {
 		_server = other.getServer();
@@ -93,6 +100,11 @@ void Channel::addClient(std::string ID)
 void Channel::addOperator(std::string ID)
 {
 	this->_clientOperators.insert(ID);
+}
+
+void Channel::addInvited(std::string ID)
+{
+	this->_clientInvited.insert(ID);
 }
 
 void Channel::removeConnected(std::string ID)

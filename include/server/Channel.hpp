@@ -13,9 +13,11 @@ class Channel
 		~Channel( void );
 
 		bool	isclientConnected(std::string ID);
+		bool	isClientInvited(std::string ID);
 		bool	isClientBanned(std::string ID);
 		void	addClient(std::string ID);
 		void	addOperator(std::string ID);
+		void	addInvited(std::string ID)
 		void	removeConnected(std::string ID);
 		void	removeBanned(std::string ID);
 		void	removeOperator(std::string ID);
@@ -62,7 +64,8 @@ class Channel
 		std::string						_passwd;
 		std::set<std::string>			_clientConnected; // ID is used to identify a client
 		std::set<std::string>			_clientBanned; // ID is used to identify a client
-		std::set<std::string>			_clientOperators; 
+		std::set<std::string>			_clientOperators;
+		std::set<std::string>			_clientInvited;
 		bool							_isInviteOnly;
 		bool							_isPasswordOnly;
 		bool							_isSizeLimit;
