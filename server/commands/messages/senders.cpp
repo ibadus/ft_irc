@@ -195,3 +195,18 @@ void ERR_USERSDONTMATCH(Client &client)
 {
 	 client.sendMsg(":" + client.getHost() + " 502 " + " :Cant change mode for other users\r\n");
 }
+
+void ERR_NONICKNAMEGIVEN(Client &client)
+{
+	 client.sendMsg(":" + client.getHost() + " 431 " + " ::No nickname given\r\n");
+}
+
+void ERR_NICKNAMEINUSE(Client &client, std::string nickName)
+{
+	client.sendMsg(":" + client.getHost() +  " 433 " + nickName + " :Nickname is already in use\r\n");
+}
+
+void ERR_ERRONEUSNICKNAME(Client &client, std::string nickName)
+{
+	client.sendMsg(":" + client.getHost() +  " 432 " + nickName + " :Erroneus nickname\r\n");
+}

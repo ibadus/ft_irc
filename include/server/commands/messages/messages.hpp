@@ -75,3 +75,6 @@ void ERR_CHANNELISFULL(Client &client, std::string channel_name);
 void ERR_BANNEDFROMCHAN(Client &client, std::string channel_name);
 void ERR_USERSDONTMATCH(Client &client);
 void ERR_USERNOTINCHANNEL(Client &client, std::string nickname, std::string channel_name);
+void ERR_NONICKNAMEGIVEN(Client &client);
+void ERR_NICKNAMEINUSE(Client &client, std::string nickName);
+void ERR_ERRONEUSNICKNAME(Client &client, std::string nickName);
