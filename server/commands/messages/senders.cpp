@@ -158,11 +158,30 @@ void ERR_USERONCHANNEL(Client &client, std::string channel_name, std::string nic
 
 void ERR_NOTONCHANNEL(Client &client, std::string channel_name)
 {
-	client.sendMsg(":" + client.getHost() + " 443 " + client.getNickname() + " " + channel_name + " :You're not on that channel\r\n");
+	client.sendMsg(":" + client.getHost() + " 442 " + client.getNickname() + " " + channel_name + " :You're not on that channel\r\n");
 }
 
-void ERR_NOTREGISTERED(Client &client, std::string channel_name, std::string nickName )
+void ERR_NOTREGISTERED(Client &client)
 {
-	 client.sendMsg(":" + client.getHost() + " 443 " + nickName + " " + channel_name + " :is already on channel\r\n");
+	 client.sendMsg(":" + client.getHost() + " 451 " + " :You have not registered\r\n");
 }
 
+void ERR_INVITEONLYCHAN(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 473 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+i)\r\n");
+}
+
+void ERR_BADCHANNELKEY(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 475 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+k)\r\n");
+}
+
+void ERR_CHANNELISFULL(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 471 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+l)\r\n");
+}
+
+void ERR_BANNEDFROMCHAN(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 471 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+b)\r\n");
+}

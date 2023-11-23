@@ -64,7 +64,12 @@ void    RPL_CHANNELMODEIS(Client &client, std::string channelName, std::string m
 
 void ERR_NOSUCHCHANNEL(Client &client, std::string channel_name);
 void ERR_NOSUCHNICK(Client &client, std::string receiver);
+void ERR_NOTREGISTERED(Client &client);
 void ERR_NEEDMOREPARAMS(Client &client, std::string command);
 void ERR_CHANOPRIVSNEEDED(Client &client, std::string channel_name);
 void ERR_USERONCHANNEL(Client &client, std::string channel_name, std::string nickname);
 void ERR_NOTONCHANNEL(Client &client, std::string channel_name);
+void ERR_INVITEONLYCHAN(Client &client, std::string channel_name);
+void ERR_BADCHANNELKEY(Client &client, std::string channel_name);
+void ERR_CHANNELISFULL(Client &client, std::string channel_name);
+void ERR_BANNEDFROMCHAN(Client &client, std::string channel_name);
