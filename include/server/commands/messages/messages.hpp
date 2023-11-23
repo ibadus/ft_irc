@@ -78,3 +78,4 @@ void ERR_USERNOTINCHANNEL(Client &client, std::string nickname, std::string chan
 void ERR_NONICKNAMEGIVEN(Client &client);
 void ERR_NICKNAMEINUSE(Client &client, std::string nickName);
 void ERR_ERRONEUSNICKNAME(Client &client, std::string nickName);
+void ERR_PASSWDMISMATCH(Client &client);

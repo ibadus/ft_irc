@@ -210,3 +210,8 @@ void ERR_ERRONEUSNICKNAME(Client &client, std::string nickName)
 {
 	client.sendMsg(":" + client.getHost() +  " 432 " + nickName + " :Erroneus nickname\r\n");
 }
+
+void ERR_PASSWDMISMATCH(Client &client)
+{
+	client.sendMsg(":" + client.getHost() +  " 464 " + ":Password incorrect\r\n");
+}

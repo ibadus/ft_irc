@@ -14,17 +14,17 @@ void	OPER(Client &client)
 		return ;
 	if (message.args.size() < 2)
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NEEDMOREPARAMS(client, message.msg);
 		return;
 	}
 	if (message.args[0] != client.getNickname())
 	{
-        client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_USERSDONTMATCH(client);
 		return;
 	}
 	if (message.args[1] != "admin")
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS: wrong password");
+		ERR_PASSWDMISMATCH(client);
 		return ;
 	}
 	client.setOperatorMode(true);
