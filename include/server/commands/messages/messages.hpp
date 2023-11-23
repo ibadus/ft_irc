@@ -59,3 +59,12 @@ void    RPL_NAMREPLY2(Client &client, std::string nickName, std::string channelN
 void    RPL_ENDOFNAMES2(Client &client, std::string channelName);
 void    RPL_INVITING(Client &client, std::string invitenick, std::string channel);
 void    RPL_CHANNELMODEIS(Client &client, std::string channelName, std::string mode);
+
+/// ERROR MESSAGES 
+
+void ERR_NOSUCHCHANNEL(Client &client, std::string channel_name);
+void ERR_NOSUCHNICK(Client &client, std::string receiver);
+void ERR_NEEDMOREPARAMS(Client &client, std::string command);
+void ERR_CHANOPRIVSNEEDED(Client &client, std::string channel_name);
+void ERR_USERONCHANNEL(Client &client, std::string channel_name, std::string nickname);
+void ERR_NOTONCHANNEL(Client &client, std::string channel_name);

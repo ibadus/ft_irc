@@ -128,3 +128,41 @@ void RPL_CHANNELMODEISTOALL(Client &client, std::string channelName, std::string
 {
 	client.sendMsg( client.getID() + " 324 " + client.getNickname() + " " + channelName + " " + mode + "\r\n");
 }
+
+/// ERROR RPL
+
+void ERR_NOSUCHCHANNEL(Client &client, std::string channel_name)
+{
+	 client.sendMsg(":" + client.getHost() + " 403 " + client.getNickname() + " " + channel_name + " :No such channel\r\n");
+}
+
+void ERR_NOSUCHNICK(Client &client, std::string receiver)
+{
+	client.sendMsg(":" + client.getHost() + " 401 " + client.getNickname() + " " + receiver + " :No such nick/channel\r\n");
+}
+
+void ERR_NEEDMOREPARAMS(Client &client, std::string command)
+{
+	client.sendMsg(":" + client.getHost() + " 461 " + client.getNickname() + " " + command + " : Not enough parameters\r\n");
+}
+
+void ERR_CHANOPRIVSNEEDED(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 482 " + client.getNickname() + " " + channel_name + " :You're not channel operator\r\n");
+}
+
+void ERR_USERONCHANNEL(Client &client, std::string channel_name, std::string nickName )
+{
+	client.sendMsg(":" + client.getHost() + " 443 " + client.getNickname() + " " + nickName + " " + channel_name + " :is already on channel\r\n");
+}
+
+void ERR_NOTONCHANNEL(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 443 " + client.getNickname() + " " + channel_name + " :You're not on that channel\r\n");
+}
+
+void ERR_NOTREGISTERED(Client &client, std::string channel_name, std::string nickName )
+{
+	 client.sendMsg(":" + client.getHost() + " 443 " + nickName + " " + channel_name + " :is already on channel\r\n");
+}
+

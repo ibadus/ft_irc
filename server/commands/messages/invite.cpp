@@ -13,37 +13,34 @@ bool	isValidParsingINVITE(Server &server, Client &client)
     Message message = client.getClientMessage();
 	if (message.args.size() < 2)
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return (false);
 	}
-
   	if (!server.isClientExisting(message.args[0]))
   	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NOSUCHNICK(client, message.args[0]);
 		return (false);
   	}
-
   	if (!server.isChannelExisting(message.args[1]))
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NOSUCHCHANNEL(client, message.args[1]);
 		return (false);
 	}
-
 	if (!server.getChannel(message.args[1]).isclientConnected(client.getID()))
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NOTONCHANNEL(client, message.args[1]);
 		return (false);
 	}
   	if (server.getChannel(message.args[1]).isclientConnected(server.getClientByName(message.args[0]).getID()))
   	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_USERONCHANNEL(client, message.args[1], message.args[0]);
 		return (false);  
   	}
   	if (server.getChannel(message.args[1]).getInviteMode() == true)
   	{
 		if (!server.getChannel(message.args[1]).isClientOperatorChannel(client.getID()))
 		{
-	  		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+	  		ERR_CHANOPRIVSNEEDED(client, message.args[1]);
 	  		return(false);
 		} 
   	}
