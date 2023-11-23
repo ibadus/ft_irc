@@ -12,7 +12,7 @@ void	PRIVMSG(Server &server, Client &client)
     {
         return;
     }
-	if (message.args.size() < 2)
+	if (message.args.size() < 1)
 	{
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
 		return;

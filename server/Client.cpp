@@ -11,7 +11,7 @@
 
 size_t Client::g_ID = 0; // auto increment
 
-Client::Client(int fd, Server &server, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo): _fd(fd), _server(server), _host(host), _port(port), _conn_event(event), _addrinfo(addrinfo), _nickname(""), _client_msg(Message()), _operatorMode(false), _invisibleMode(true), _online(true) ,_registered(false), _identified(false) {
+Client::Client(int fd, Server &server, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo): _fd(fd), _server(server), _host(host), _port(port), _conn_event(event), _addrinfo(addrinfo), _nickname(""), _client_msg(Message()), _operatorMode(false), _invisibleMode(true), _online(false) ,_registered(false), _identified(false) {
 	Client::ID = Client::g_ID++;
 }
 
