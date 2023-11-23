@@ -13,7 +13,7 @@
 int		parseModes(Server &server, Client &client, std::string modes, int modeType, std::string arg, std::string chan )
 {
 	size_t j = 0;
-	std::cout << "UNTIL HERE NO PROBLEMS PARSES MODE" << std::endl;
+
 	for (j = 0; j < modes.size(); j++)
 	{
 		if (modes[j] == '+' or modes[j] == '-')
@@ -80,8 +80,6 @@ int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode
 		{
 			server.getChannel(chan).setChannelPassw(key);
 			server.getChannel(chan).setPasswMode(true);
-			std::cout << "channel pass -->" << server.getChannel(chan).getChannelPassw() << "<--" << std::endl;
-			std::cout << "UNTIL HERE NO PROBLEMS" << std::endl;
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "+k" + " :" + key + "\r\n", "");
 			return (0);
 		}
@@ -143,9 +141,6 @@ int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode,
 			}
 			size_t output;
 			stream >> output;
-			std::cout << "Nombre de clients : " << static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()) << std::endl;
-			std::cout << "SizeLimite : " << server.getChannel(chan).getSizeLimit()  << std::endl;
-
 			if (output < static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()))
 			{
 				std::cout << "Size Limit must be smaller than the current connected users numbers." << std::endl;
@@ -255,36 +250,35 @@ bool	parsingErrorChannel(Server &server, Client &client, std::vector<std::string
 	toLowerStr(channelName);
 	if (!server.isChannelExisting(channelName))
 	{
-		// sendMessage(ERR_NOSUCHCHANNEL(channelName));
+		ERR_NOSUCHCHANNEL(client, channelName);
 		return (false);
 	}
 	if (cmd.size() < 2)
 	{
-		// sendMessage(ERR_NEEDMOREPARAMS("MODE"));
+		ERR_NEEDMOREPARAMS(client, "MODE");
 		return (false);
 	}
 	if (!server.getChannel(channelName).isclientConnected(client.getID()))
 	{
-		//sendMessage(ERR_NOTONCHANNEL(channelName));
+		ERR_NOTONCHANNEL(client, channelName);
 		return (false);
 	}
 	if (!server.getChannel(channelName).isClientOperatorChannel(client.getID()))
 	{
-		// sendMessage(getPrefix() + ERR_CHANOPRIVSNEEDED(channelName, this->userInfos.nickName));
+		ERR_CHANOPRIVSNEEDED(client, channelName);
 		return(false);
 	}
-	std::cout << " : BEFORE THE CHECKIN ON 3 ARGS" << std::endl;
 	if (cmd.size() == 3)
 	{
 		if (server.isClientExisting(cmd[2]))
 		{
 			if (!server.getChannel(channelName).isclientConnected(server.getClientByName(cmd[2]).getID()))
 			{
+				ERR_NOTONCHANNEL(client, channelName);
 				return (false);
 			}
 		}
 	}
-	std::cout << " : AFTER THE CHEING FOR 2 ARGS" << std::endl;
 	return (true);
 }
 
@@ -292,12 +286,12 @@ void	addUserMode(Server &server, Client &client, std::vector<std::string> cmd)
 {
 	if (cmd.size() < 2)
 	{
-		// TO DO:  sendMessage(ERR_NEEDMOREPARAMS("MODE"));
+		ERR_NEEDMOREPARAMS(client, client.getClientMessage().cmd);
 		return ;
 	}
 	if (cmd[0].compare(client.getNickname()) != 0)
 	{
-		// TO DO: sendMessage(ERR_USERSDONTMATCH(this->userInfos.nickName));
+		ERR_USERSDONTMATCH(client);
 		return ;
 	}
 	if (cmd.size() == 2)
@@ -316,18 +310,12 @@ void	addUserMode(Server &server, Client &client, std::vector<std::string> cmd)
 
 void	addChannelMode(Server &server, Client &client, std::vector<std::string> cmd)
 {
-	std::cout << " : ENTER ADDCHANEL" << std::endl;
-	std::cout << "CHANNEL NAME : " << cmd[0] << std::endl;
 	if (!parsingErrorChannel(server, client, cmd))
 		return;
 	std::string targetKey = "";
 	if (cmd.size() >= 3)
 	{
 		targetKey = cmd[2];
-		std::cout << " : AFTER PARSING" << std::endl;
-		std::cout << "CHANNEL NAME : " << cmd[0] << std::endl;
-		std::cout << "MODE : " << cmd[1] << std::endl;
-		std::cout << "KEY : " << cmd[2] << std::endl;
 	}
 	parseModes(server, client, cmd[1], CHANNEL_MODE, targetKey, cmd[0]);
 	return;
@@ -343,10 +331,9 @@ void	MODE(Server &server, Client &client)
     }
 	if (message.args.size() < 1)
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return;
 	}
-	std::cout << "I AM HERE" << std::endl;
 	if (message.args[0].find("#") != std::string::npos)
 		addChannelMode(server, client, message.args);
 	else

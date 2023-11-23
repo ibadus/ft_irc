@@ -190,3 +190,8 @@ void ERR_USERNOTINCHANNEL(Client &client, std::string nickName, std::string chan
 {
 	 client.sendMsg(":" + client.getHost() + " 451 " + nickName + " " + channel_name + " :They aren't on that channel\r\n");
 }
+
+void ERR_USERSDONTMATCH(Client &client)
+{
+	 client.sendMsg(":" + client.getHost() + " 502 " + " :Cant change mode for other users\r\n");
+}

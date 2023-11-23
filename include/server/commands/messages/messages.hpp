@@ -73,4 +73,5 @@ void ERR_INVITEONLYCHAN(Client &client, std::string channel_name);
 void ERR_BADCHANNELKEY(Client &client, std::string channel_name);
 void ERR_CHANNELISFULL(Client &client, std::string channel_name);
 void ERR_BANNEDFROMCHAN(Client &client, std::string channel_name);
+void ERR_USERSDONTMATCH(Client &client);
 void ERR_USERNOTINCHANNEL(Client &client, std::string nickname, std::string channel_name);
