@@ -14,13 +14,13 @@ void	NOTICE(Server &server, Client &client)
     }
 	if (message.args.size() < 2)
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return;
 	}
 	std::string nickNameClientReceiver = message.args[0];
 	if (!server.isClientExisting(nickNameClientReceiver))
 	{
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NOSUCHNICK(client, nickNameClientReceiver);
 		return;
 	}
     std::string msg;
