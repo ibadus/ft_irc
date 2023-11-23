@@ -13,6 +13,7 @@
 int		parseModes(Server &server, Client &client, std::string modes, int modeType, std::string arg, std::string chan )
 {
 	size_t j = 0;
+	std::cout << "UNTIL HERE NO PROBLEMS PARSES MODE" << std::endl;
 	for (j = 0; j < modes.size(); j++)
 	{
 		if (modes[j] == '+' or modes[j] == '-')
@@ -79,7 +80,9 @@ int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode
 		{
 			server.getChannel(chan).setChannelPassw(key);
 			server.getChannel(chan).setPasswMode(true);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+k" + "\r\n", "");
+			std::cout << "channel pass -->" << server.getChannel(chan).getChannelPassw() << "<--" << std::endl;
+			std::cout << "UNTIL HERE NO PROBLEMS" << std::endl;
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "+k" + " :" + key + "\r\n", "");
 			return (0);
 		}
 	}
@@ -88,7 +91,7 @@ int		handlePasswChannelMode(Server &server, Client &client, char sign, char mode
 		if (mode == 'k')
 		{
 			server.getChannel(chan).setPasswMode(false);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-k" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "-k" + " :" + key + "\r\n", "");
 			return(0);
 		}
 	}
@@ -105,7 +108,7 @@ int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, c
 		if (mode == 't')
 		{
 			server.getChannel(chan).setTopicLimitMode(true);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+t" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "+t" + "\r\n", "");
 			return (0);
 		}
 	}
@@ -114,7 +117,7 @@ int		handleTopicRestrictChannelMode(Server &server, Client &client, char sign, c
 		if (mode == 't')
 		{
 			server.getChannel(chan).setTopicLimitMode(false);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-t" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "-t" + "\r\n", "");
 			return(0);
 		}
 	}
@@ -140,14 +143,17 @@ int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode,
 			}
 			size_t output;
 			stream >> output;
-			if (server.getChannel(chan).getSizeLimit() <= static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()))
+			std::cout << "Nombre de clients : " << static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()) << std::endl;
+			std::cout << "SizeLimite : " << server.getChannel(chan).getSizeLimit()  << std::endl;
+
+			if (output < static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()))
 			{
 				std::cout << "Size Limit must be smaller than the current connected users numbers." << std::endl;
 				return (0);
 			}
 			server.getChannel(chan).setSizeLimit(output);
 			server.getChannel(chan).setSizeLimitMode(true);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+l" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE "  + chan + " " + "+l :" + key + + "\r\n", "");
 			return (0);
 		}
 	}
@@ -156,7 +162,7 @@ int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode,
 		if (mode == 'l')
 		{
 			server.getChannel(chan).setSizeLimitMode(false);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-l" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE "  + chan + " " + "-l :" + key + + "\r\n", "");
 			return(0);
 		}
 	}
@@ -173,7 +179,7 @@ int		handleInviteOnlyMode(Server &server, Client &client, char sign, char mode, 
 		if (mode == 'i')
 		{
 			server.getChannel(chan).setInviteMode(true);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+i" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "+i" + "\r\n", "");
 			return (0);
 		}
 	}
@@ -182,7 +188,7 @@ int		handleInviteOnlyMode(Server &server, Client &client, char sign, char mode, 
 		if (mode == 'i')
 		{
 			server.getChannel(chan).setInviteMode(false);
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-1" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " MODE " + chan + " " + "-i" + "\r\n", "");
 			return(0);
 		}
 	}
@@ -267,13 +273,18 @@ bool	parsingErrorChannel(Server &server, Client &client, std::vector<std::string
 		// sendMessage(getPrefix() + ERR_CHANOPRIVSNEEDED(channelName, this->userInfos.nickName));
 		return(false);
 	}
+	std::cout << " : BEFORE THE CHECKIN ON 3 ARGS" << std::endl;
 	if (cmd.size() == 3)
 	{
-		if (!server.getChannel(channelName).isclientConnected(server.getClientByName(cmd[2]).getID()))
+		if (server.isClientExisting(cmd[2]))
 		{
-			return (false);
+			if (!server.getChannel(channelName).isclientConnected(server.getClientByName(cmd[2]).getID()))
+			{
+				return (false);
+			}
 		}
 	}
+	std::cout << " : AFTER THE CHEING FOR 2 ARGS" << std::endl;
 	return (true);
 }
 
@@ -305,12 +316,20 @@ void	addUserMode(Server &server, Client &client, std::vector<std::string> cmd)
 
 void	addChannelMode(Server &server, Client &client, std::vector<std::string> cmd)
 {
+	std::cout << " : ENTER ADDCHANEL" << std::endl;
+	std::cout << "CHANNEL NAME : " << cmd[0] << std::endl;
 	if (!parsingErrorChannel(server, client, cmd))
 		return;
-	std::string targetName = "";
-	if (cmd.size() > 3)
-		targetName = cmd[2];
-	parseModes(server, client, cmd[1], CHANNEL_MODE, targetName, cmd[0]);
+	std::string targetKey = "";
+	if (cmd.size() >= 3)
+	{
+		targetKey = cmd[2];
+		std::cout << " : AFTER PARSING" << std::endl;
+		std::cout << "CHANNEL NAME : " << cmd[0] << std::endl;
+		std::cout << "MODE : " << cmd[1] << std::endl;
+		std::cout << "KEY : " << cmd[2] << std::endl;
+	}
+	parseModes(server, client, cmd[1], CHANNEL_MODE, targetKey, cmd[0]);
 	return;
 }
 
@@ -327,6 +346,7 @@ void	MODE(Server &server, Client &client)
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
 		return;
 	}
+	std::cout << "I AM HERE" << std::endl;
 	if (message.args[0].find("#") != std::string::npos)
 		addChannelMode(server, client, message.args);
 	else

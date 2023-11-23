@@ -107,6 +107,16 @@ bool Server::isClientExisting(std::string nickName)
 	return false;
 }
 
+bool Server::isClientExistingID(std::string ID)
+{
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getID() == ID) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool Server::initEpoll() {
 	this->_epoll_fd = epoll_create1(0);
 	if (this->_epoll_fd < 0) {
@@ -355,6 +365,7 @@ void Server::addChannel(std::string chanName)
 {
 	if (this->isChannelExisting(chanName))
 		return;
+	std::cout << "NEW CHANNEL CREATED" << std::endl;
 	_channels.push_back(Channel(*this, chanName));
 }
 
