@@ -13,22 +13,26 @@ bool	isValidParsingKICK(Server &server, Client &client)
 {
     Message message = client.getClientMessage();
     if (message.args.size() < 2) {
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return(false);
 	}
 	if (!server.isChannelExisting(message.args[0]))
 	{
-        client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO: PUT THE RIGHT MESSAGE ERROR
+        ERR_NOSUCHCHANNEL(client, message.args[0]);
 		return(false);
 	}
-	if (!server.getChannel(message.args[0]).isclientConnected(client.getID()))
+	if (!server.getChannel(message.args[0]).isclientConnected(server.getClientByName(message.args[1]).getID()))
 	{
-        client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO: PUT THE RIGHT MESSAGE ERROR
+        ERR_USERNOTINCHANNEL(client, message.args[1], message.args[0]);
+		return(false);
+	}
+		if (!server.getChannel(message.args[0]).isclientConnected(client.getID()))
+	{
 		return(false);
 	}
 	if (!server.getChannel(message.args[0]).isClientOperatorChannel(client.getID())) 
 	{
-		client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO: PUT THE RIGHT MESSAGE ERROR
+		ERR_CHANOPRIVSNEEDED(client, message.args[0]); 
 		return (false);
 	}
 	return (true);

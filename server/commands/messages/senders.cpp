@@ -185,3 +185,8 @@ void ERR_BANNEDFROMCHAN(Client &client, std::string channel_name)
 {
 	client.sendMsg(":" + client.getHost() + " 471 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+b)\r\n");
 }
+
+void ERR_USERNOTINCHANNEL(Client &client, std::string nickName, std::string channel_name)
+{
+	 client.sendMsg(":" + client.getHost() + " 451 " + nickName + " " + channel_name + " :They aren't on that channel\r\n");
+}
