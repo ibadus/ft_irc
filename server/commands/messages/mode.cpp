@@ -325,7 +325,7 @@ void	addChannelMode(Server &server, Client &client, std::vector<std::string> cmd
 void	MODE(Server &server, Client &client)
 {
     Message message =  client.getClientMessage();
-    if (!client.isIdentified())
+    if (!client.isOnline())
     {
         return;
     }

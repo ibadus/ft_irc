@@ -7,9 +7,6 @@
 void	USER(Server &server, Client &client)
 {
     Message message = client.getClientMessage();
-	std::cout << "CLIENT STATUS USER " << std::endl;
-	std::cout << "REGISTER:  " << client.isRegistered() << std::endl;
-	std::cout << "HAS_NICK:  " << client.getHasNick() << std::endl;
 	if (client.isRegistered() and client.getHasNick())
 	{
 		if (message.args.size() != 0)

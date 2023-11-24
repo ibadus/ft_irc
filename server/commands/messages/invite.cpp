@@ -50,7 +50,7 @@ bool	isValidParsingINVITE(Server &server, Client &client)
 void	INVITE(Server &server, Client &client)
 {
     Message message = client.getClientMessage();
-	if (!client.isIdentified())
+	if (!client.isOnline())
 		return ;
 	if (!isValidParsingINVITE(server, client))
 		return;
