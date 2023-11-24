@@ -23,6 +23,7 @@ void PASS(Server &server, Client &client) {
 	}
 	if (message.args[0] == server.getServerPassword()) {
 		client.setRegistered(true);
+		client.setOnline(true);
 		return;
 	} else {
 		client.sendMsg("464 ERR_PASSWDMISMATCH:Invalid password.");
