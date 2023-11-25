@@ -10,7 +10,7 @@
 void	OPER(Client &client)
 {
     Message message = client.getClientMessage();
-	if (!client.isIdentified())
+	if (!client.isOnline())
 		return ;
 	if (message.args.size() < 2)
 	{

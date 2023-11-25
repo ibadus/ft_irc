@@ -8,7 +8,7 @@
 void	PRIVMSG(Server &server, Client &client)
 {
     Message message =  client.getClientMessage();
-    if (!client.isIdentified())
+    if (!client.isOnline())
     {
         return;
     }

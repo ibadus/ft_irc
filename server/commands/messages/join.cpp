@@ -44,8 +44,8 @@ void JOIN(Server &server, Client &client)
 			{
 				ERR_BADCHANNELKEY(client,channel_name);
 				return;
-			}			
-			if (server.getChannel(channel_name).getSizeLimitMode() && (static_cast<int>(server.getChannel(channel_name).getSizeLimit()) >= static_cast<int>(server.getChannel(channel_name).getClientConnectList().size())))
+			}
+			if (server.getChannel(channel_name).getSizeLimitMode() && (static_cast<int>(server.getChannel(channel_name).getSizeLimit()) <= static_cast<int>(server.getChannel(channel_name).getClientConnectList().size())))
 			{
 				ERR_CHANNELISFULL(client, channel_name); // TODO : PUT THE RIGHT MESSAGE ERROR
 				return;

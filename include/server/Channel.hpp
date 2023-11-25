@@ -29,17 +29,14 @@ class Channel
 		std::string 	getChannelPassw() { return this->_passwd; }
 		void 	setChannelPassw(std::string passw) { this->_passwd = passw; }
 
-		bool 	getSizeLimit() { return this->_sizeLimit; }
-		void 	setSizeLimit(size_t size) 
-		{
-			this->_sizeLimit = size;
-		}
+		size_t 	getSizeLimit() { return this->_sizeLimit; }
+		void 	setSizeLimit(size_t size) { this->_sizeLimit = size; }
 
 		bool 	getTopicLimitMode() { return this->_isTopicLimited; }
 		void 	setTopicLimitMode(bool topicLimit) { this->_isTopicLimited = topicLimit; }
 
 		bool 	getSizeLimitMode() { return this->_isSizeLimit; }
-		void 	setSizeLimitMode(bool sizeLimit) { this->_isSizeLimit = sizeLimit; }
+		void 	setSizeLimitMode(bool size) { this->_isSizeLimit = size; }
 
 		bool 	getPasswMode() { return this->_isPasswordOnly; }
 		void 	setPasswMode(bool passwordOnly) { this->_isPasswordOnly = passwordOnly; }

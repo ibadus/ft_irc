@@ -237,6 +237,7 @@ bool	parsingErrorChannel(Server &server, Client &client, std::vector<std::string
 {
 	if (cmd.size() == 1)
 	{
+		
 		if (server.isChannelExisting(cmd[0]) == true)
 		{
 			if (server.getChannel(cmd[0]).getInviteMode() == true)

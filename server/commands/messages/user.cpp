@@ -7,6 +7,8 @@
 void	USER(Server &server, Client &client)
 {
     Message message = client.getClientMessage();
+	if (!client.isOnline())
+		return ;
 	if (client.isRegistered() and client.getHasNick())
 	{
 		if (message.args.size() != 0)

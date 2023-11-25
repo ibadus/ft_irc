@@ -13,6 +13,10 @@ void NICK(Server &server, Client &client) {
 	std::vector<Client> clientList = server.getClientList();
 	Message message = client.getClientMessage();
 
+	if (!client.isOnline())
+	{
+		return ;
+	}
 	if (message.args.size() != 1) {
 		ERR_NEEDMOREPARAMS(client, message.cmd);
 		ERR_NONICKNAMEGIVEN(client);
