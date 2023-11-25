@@ -85,9 +85,14 @@ void sendQUITREASON(Client &client, std::string message)
 
 void sendQuitToAllExceptUser(Server &server, Client &client, std::string reason)
 {
+	std::vector<Client> clientList = server.getClientList();
 	std::string nickname = client.getNickname();
-	for( std::vector<Client>::iterator it = server.getClientList().begin(); it != server.getClientList().end(); it++ )
+	for( std::vector<Client>::iterator it = clientList.begin(); it != clientList.end(); it++ )
 	{
+		if (it == clientList.end())
+		{
+			continue;
+		}
 		if (it->getNickname() != nickname)
 		{
 			if (reason.size() != 0)

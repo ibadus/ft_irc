@@ -11,7 +11,7 @@ void PONG(Client &client) {
 		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
 		return;
 	}
-	if (!client.isIdentified())
+	if (!client.isOnline())
 		return;
 
 	sendPING(client, message);

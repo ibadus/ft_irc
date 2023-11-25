@@ -18,7 +18,7 @@ void PASS(Server &server, Client &client) {
 
 	if (client.isRegistered()) {
 		client.sendMsg("462 ERR_ALREADYREGISTRED:You are already registered.");
-		client.setOnline(false);
+		client.setOnline(true);
 		return;
 	}
 	if (message.args[0] == server.getServerPassword()) {

@@ -8,6 +8,10 @@
 #include "commands.hpp"
 #include "Message.hpp"
 
+#include <bitset>
+#include <climits>
+#include <cstring>
+
 #include <string>
 #include <iostream>
 #include <exception>
@@ -25,10 +29,10 @@ Server::Server(const std::string &name, const unsigned int port, const std::stri
 	if (this->_socket_fd < 0)
 		throw std::runtime_error("Could not start server.");
 	this->_port = getPort(this->_socket_fd);
+	std::memset(&this->_event, 0, sizeof(this->_event));
 }
 
-Server::~Server() {class server;
-
+Server::~Server() {
 	// TODO: free alloc memory
 }
 
@@ -46,8 +50,9 @@ void Server::flush() {
 void Server::disconnectClient(const int fd) {
 	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
 		if (it->getFD() == fd) {
-			it->disconnect();
-			this->_clients.erase(it);
+			it = this->_clients.erase(it);
+			epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+			close(fd);
 			break;
 		}
 	}
@@ -65,7 +70,7 @@ void Server::sendMsgToAll(std::string msg) {
 		it->sendMsg(msg);
 	}
 }
-
+/*
 Client &Server::getClientByFD(const int fd) {
 	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
 		if (it->getFD() == fd) {
@@ -74,7 +79,16 @@ Client &Server::getClientByFD(const int fd) {
 	}
 	return *this->_clients.end();
 }
+*/
 
+std::vector<Client>::iterator Server::getClientByFD(const int fd) {
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+		if (it->getFD() == fd) {
+			return it;
+		}
+	}
+	return this->_clients.end();
+}
 
 Client &Server::getClient(std::string ID)
 {
@@ -173,6 +187,7 @@ bool Server::handlePolling() {
 				if (this->_events[i].data.fd == this->_socket_fd && this->_events[i].events & EPOLLIN) {
 					this->handleNewConnection(this->_events[i]);
 				} else if (this->_events[i].events & EPOLLIN) {
+					std::cout << "I GOT A NEW BRAND MESSAGE TO HANDLE"<< std::endl;
 					this->handleMessages(this->_events[i].data.fd);
 					continue;
 				} else if (this->_events[i].events & EPOLLERR || this->_events[i].events & EPOLLHUP || this->_events[i].events & EPOLLHUP) {
@@ -226,6 +241,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	}
 
 	struct epoll_event client_event;
+	std::memset(&client_event, 0, sizeof(client_event));
 	client_event.events =  EPOLLIN | EPOLLRDHUP;
 	client_event.data.fd = client_fd;
 	// add client to epoll for performance reasons
@@ -244,12 +260,13 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 }
 
 bool Server::handleMessages(const int fd) {
-	Client &client = this->getClientByFD(fd);
-	if (client == *this->_clients.end()) {
+	std::vector<Client>::iterator clientIt = this->getClientByFD(fd);
+	if (clientIt == this->_clients.end()) {
 		std::cerr << "Error: Client not found" << std::endl;
 		return false;
 	}
 
+	Client &client = *clientIt;
 	std::string msg;
 	char buffer[BUFFER_SIZE];
 	int bytes_read = 0;
@@ -303,7 +320,11 @@ bool Server::handleMessages(const int fd) {
 		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
 
 		// check the return value of commandsHandler since it's a Boolean return value
-		commandsHandler(*this , client);
+		if(!commandsHandler(*this , client))
+		{
+			this->disconnectClient(fd);
+			return false;
+		}
 	}
 
 	return true;

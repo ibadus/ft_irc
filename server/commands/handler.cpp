@@ -43,8 +43,6 @@ bool commandsHandler(Server &server, Client &client) {
 	// past this point, the user has registered and identifie
 	if (message.cmd == "JOIN")
 		JOIN(server, client);
-	else if (message.cmd == "QUIT")
-		QUIT(server, client);
 	else if (message.cmd == "WHOIS")
 		WHOIS(server, client);
 	else if (message.cmd == "OPER")
@@ -63,6 +61,11 @@ bool commandsHandler(Server &server, Client &client) {
 		TOPIC(server, client);
 	else if (message.cmd == "LIST")
 		LIST(server, client);
+	else if (message.cmd == "QUIT")
+	{
+		QUIT(server, client);
+		return (false);
+	}
 
 	return true;
 }

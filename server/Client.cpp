@@ -48,6 +48,6 @@ void Client::sendMsg(std::string msg) {
 
 void Client::disconnect() {
 	sendMsg(std::string(TEXT_RED) + "The server is disconnecting you..." + std::string(TEXT_RESET));
-	close(this->_fd);
+	//close(this->_fd);
 	// std::cout << "Client (" << this->ID << ") disconnected." << std::endl;
 }
