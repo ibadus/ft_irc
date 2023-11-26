@@ -3,7 +3,7 @@
 ################################################################################
 
 NAME		= 	ircserv
-CC			= 	c++
+CC			= 	c++ -g3
 CFLAGS		=	-std=c++98
 
 RUN_PARAM	=	
@@ -25,11 +25,17 @@ SRCS			=	main.cpp \
 								quit.cpp \
 								senders.cpp \
 								whois.cpp \
+								topic.cpp \
 								join.cpp \
+								list.cpp \
 								user.cpp \
 								invite.cpp \
 								kick.cpp \
+								names.cpp \
+								mode.cpp \
 								part.cpp \
+								privmsg.cpp \
+								notice.cpp \
 								oper.cpp \
 							) \
 							Message.cpp \

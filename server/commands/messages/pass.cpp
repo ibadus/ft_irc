@@ -4,6 +4,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 #include <iostream>
 
 // https://modern.ircdocs.horse/#pass-message
@@ -18,16 +19,22 @@ void PASS(Server &server, Client &client) {
 
 	if (client.isRegistered()) {
 		client.sendMsg("462 ERR_ALREADYREGISTRED:You are already registered.");
-		client.setOnline(false);
+		client.setOnline(true);
+		return;
+	}
+	if (client.isOnline()) {
+		client.sendMsg("462 ERR_ALREADYREGISTRED:You are already registered.");
 		return;
 	}
 	if (message.args[0] == server.getServerPassword()) {
 		client.setRegistered(true);
+		client.setOnline(true);
 		return;
 	} else {
 		client.sendMsg("464 ERR_PASSWDMISMATCH:Invalid password.");
 		client.sendMsg(TEXT_RED + std::string("Password incorrect.") + TEXT_RESET);
 		client.setOnline(false);
 		client.disconnect();
+		close(client.getFD());
 	}
 }

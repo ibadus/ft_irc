@@ -7,18 +7,47 @@
 
 void QUIT(Server &server, Client &client)
 {
-    Message message =  client.getClientMessage();
-    
+    Message message =  client.getClientMessage();   
     if (!client.isIdentified())
+        return;
+    if (!client.isOnline())
         return;
     client.setOnline(false);
     if (message.args.size() == 1)
     {
-       sendQUITREASON(client, message.args[0]);
-       sendQuitToAllExceptUser(server, client, message.args[0]);
-       return;
+        std::vector<Client> clientList = server.clients;
+        std::string nickname = client.getNickname();
+        sendQUITREASON(client, client, message.args[0]);
+        for( std::vector<Client>::iterator it = clientList.begin(); it != clientList.end(); it++ )
+        {
+            if (it == clientList.end())
+            {
+                continue;
+            }
+            if (it->getNickname() != nickname)
+            {
+                if (message.args[0].size() != 0)
+                    sendQUITREASON(*it, client, message.args[0]);
+            }
+        }
+        return;
     }
-    sendQUIT(client);
-    sendQuitToAllExceptUser(server, client, "");
+    sendQUIT(client, client);
+    std::vector<Client> clientList = server.clients;
+    std::string nickname = client.getNickname();
+    for( std::vector<Client>::iterator it = clientList.begin(); it != clientList.end(); it++ )
+    {
+        if (it == clientList.end())
+        {
+            continue;
+        }
+        if (it->getNickname() != nickname)
+        {
+            if (message.args.size() == 0)
+                sendQUITREASON(*it, client, "");
+            else 
+                 sendQUIT(*it, client);
+        }
+    }
     return;
 }

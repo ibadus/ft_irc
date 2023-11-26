@@ -8,11 +8,13 @@
 #include <sys/epoll.h> // epoll_event
 #include <sys/socket.h> // send
 #include <unistd.h> // close
+#include <ctime>
 
-size_t Client::g_ID = 0; // auto increment
 
-Client::Client(int fd, Server &server, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo): _fd(fd), _server(server), _host(host), _port(port), _conn_event(event), _addrinfo(addrinfo), _nickname(""), _client_msg(Message()), _operatorMode(false), _invisibleMode(true), _online(true) ,_registered(false), _identified(false) {
-	Client::ID = Client::g_ID++;
+Client::Client(int fd, Server &server, std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo): _fd(fd), _server(server), _host(host), _port(port), _conn_event(event), _addrinfo(addrinfo), _nickname(""), _client_msg(Message()), _operatorMode(false), _invisibleMode(true), _online(false) ,_registered(false), _identified(false) {
+	this->ID = "";
+	this->lastPingSent = time(0);
+	this->lastPongReceived = time(0);
 }
 
 std::string Client::getPreviousNick () 
@@ -34,6 +36,12 @@ Client& Client::operator=(const Client& other) {
     return *this;
 }
 
+
+void	Client::ping()
+{
+	this->sendMsg("PING " + this->_server.getServerName() + "\r\n" );;
+}
+
 bool Client::operator==(const Client &other)  {
 	return this->_fd == other.getFD() && this->_host == other.getHost() && this->_port == other.getPort();
 }
@@ -41,12 +49,13 @@ bool Client::operator==(const Client &other)  {
 Client::~Client() {}
 
 void Client::sendMsg(std::string msg) {
+	std::cout << std::string(TEXT_BLUE) << "message send on --> " << this->getFD() << " : " << msg << std::string(TEXT_RESET) << std::endl;
 	send(this->_fd, msg.c_str(), msg.length(), 0);
 }
 
 
 void Client::disconnect() {
 	sendMsg(std::string(TEXT_RED) + "The server is disconnecting you..." + std::string(TEXT_RESET));
-	close(this->_fd);
+	//close(this->_fd);
 	// std::cout << "Client (" << this->ID << ") disconnected." << std::endl;
 }

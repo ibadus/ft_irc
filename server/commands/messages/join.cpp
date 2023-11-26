@@ -13,20 +13,20 @@ void JOIN(Server &server, Client &client)
     Message message = client.getClientMessage();
     if (!client.isOnline())
         return;
-    if (message.args.size() != 1) {
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+    if (message.args.size() > 2) {
+		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return;
 	}
     std::vector<std::string> listOfChannelToAdd = split(message.args[0], ",");
 	std::string channel_name;
 
-    	for (std::vector<std::string>::iterator it = listOfChannelToAdd.begin(); it != listOfChannelToAdd.end(); it++)
+    for (std::vector<std::string>::iterator it = listOfChannelToAdd.begin(); it != listOfChannelToAdd.end(); it++)
 	{
 		channel_name = *it;
 		toLowerStr(channel_name);
 		if (channel_name.size() <= 1 || !isChannelName(channel_name))
 		{
-			client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO: PUT THE RIGHT MESSAGE ERROR
+			ERR_NOSUCHCHANNEL(client, channel_name);
 			return;
 		}
 		else
@@ -35,19 +35,29 @@ void JOIN(Server &server, Client &client)
 			{
 				server.addChannel(channel_name);
 			}
-			if (server.getChannel(channel_name).getChannelMode())
+			if (server.getChannel(channel_name).getInviteMode() && !server.getChannel(channel_name).isClientInvited(client.getID()))
 			{
-				client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO : PUT THE RIGHT MESSAGE ERROR
+				ERR_INVITEONLYCHAN(client, channel_name);
+				return;
+			}
+			if (server.getChannel(channel_name).getPasswMode() && ( (int)message.args.size() != 2 || server.getChannel(channel_name).getChannelPassw() != message.args[1]))
+			{
+				ERR_BADCHANNELKEY(client,channel_name);
+				return;
+			}
+			if (server.getChannel(channel_name).getSizeLimitMode() && (static_cast<int>(server.getChannel(channel_name).getSizeLimit()) <= static_cast<int>(server.getChannel(channel_name).clientConnected.size())))
+			{
+				ERR_CHANNELISFULL(client, channel_name); // TODO : PUT THE RIGHT MESSAGE ERROR
 				return;
 			}
 			else if (server.getChannel(channel_name).isClientBanned(client.getID()))
 			{
-				client.sendMsg("432 ERR_ERRONEUSNICKNAME:You cannot use this nickname."); // TODO :PUT THE RIGHT MESSAGE ERROR
+				ERR_BANNEDFROMCHAN(client, channel_name); // TODO :PUT THE RIGHT MESSAGE ERROR
 				return;
 			}
 			else
 			{
-				if (server.getChannel(channel_name).getClientOperator().size() == 0)
+				if (server.getChannel(channel_name).clientOperators.size() == 0)
 					server.getChannel(channel_name).addOperator(client.getID());
 				server.getChannel(channel_name).addClient(client.getID());
 			}
@@ -55,4 +65,3 @@ void JOIN(Server &server, Client &client)
 	}
 	return ;
 }
-

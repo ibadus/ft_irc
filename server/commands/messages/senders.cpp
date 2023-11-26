@@ -14,7 +14,7 @@ void sendRplWelcome(Server &server, Client &client)
 
 void RPL_UMODEIS(Client &client, std::string mode, std::string type)
 {
-	client.sendMsg(client.getID() + " 221 " + client.getNickname() + " " + mode + type + "\r\n");
+	client.sendMsg(client.getIDCMD() + " 221 " + client.getNickname() + " " + mode + type + "\r\n");
 }
 
 void RPL_YOUREOPER(Client &client)
@@ -70,37 +70,18 @@ void sendPING(Client &client, Message &message)
 
 void sendNick(Client &client)
 {
-	std::cout <<  "CLIENT PREVIOUS NICK :" << client.getPreviousNick() << std::endl;
-	std::cout <<  "CLIENT NEW NICK :" << client.getNickname() << std::endl;
-
 	client.sendMsg(":" + client.getPreviousNick() + " NICK " + client.getNickname() + "\r\n");
 }
 
-void sendQUIT(Client &client)
+void sendQUIT(Client &receiver, Client &leaver)
 {
-	client.sendMsg(client.getID() + " QUIT\r\n");
+	receiver.sendMsg(leaver.getID() + " QUIT\r\n");
 }
 
-void sendQUITREASON(Client &client, std::string message)
+void sendQUITREASON(Client &receiver, Client &leaver ,std::string message)
 {
-	client.sendMsg(client.getID() + " QUIT " + message + "\r\n");
+	receiver.sendMsg(leaver.getID() + " QUIT " + message + "\r\n");
 }
-
-void sendQuitToAllExceptUser(Server &server, Client &client, std::string reason)
-{
-	std::string nickname = client.getNickname();
-	for( std::vector<Client>::iterator it = server.getClientList().begin(); it != server.getClientList().end(); it++ )
-	{
-		if (it->getNickname() != nickname)
-		{
-			if (reason.size() != 0)
-				sendQUITREASON(*it, reason);
-			else 
-				sendQUIT(*it);
-		}
-	}
-}
-
 
 void sendPART(Server &server, Client &client, std::string channel_name)
 {
@@ -110,4 +91,111 @@ void sendPART(Server &server, Client &client, std::string channel_name)
 void sendPARTREASON(Server &server, Client &client, std::string channel_name, std::string reason)
 {
 	server.getChannel(channel_name).sendMessageToClients(":" + client.getID() + " PART " + channel_name + " :" + reason + "\r\n", "");
+}
+
+void RPL_NAMREPLY2(Client &client, std::string nickName, std::string channelName)
+{
+	client.sendMsg("353 =" + channelName + ":" + nickName + "\r\n");
+}
+
+void RPL_ENDOFNAMES2(Client &client, std::string channelName)
+{
+	client.sendMsg(client.getIDCMD() + "366 " + channelName + " :End of NAMES list\r\n");
+}
+
+void RPL_CHANNELMODEIS(Client &client, std::string channelName, std::string mode)
+{
+	client.sendMsg( client.getID() + " 324 " + client.getNickname() + " " + channelName + " " + mode + "\r\n");	
+}
+
+void RPL_CHANNELMODEISTOALL(Client &client, std::string channelName, std::string mode)
+{
+	client.sendMsg( client.getID() + " 324 " + client.getNickname() + " " + channelName + " " + mode + "\r\n");
+}
+
+/// ERROR RPL
+
+void ERR_NOSUCHCHANNEL(Client &client, std::string channel_name)
+{
+	 client.sendMsg(":" + client.getHost() + " 403 " + client.getNickname() + " " + channel_name + " :No such channel\r\n");
+}
+
+void ERR_NOSUCHNICK(Client &client, std::string receiver)
+{
+	client.sendMsg(":" + client.getHost() + " 401 " + client.getNickname() + " " + receiver + " :No such nick/channel\r\n");
+}
+
+void ERR_NEEDMOREPARAMS(Client &client, std::string command)
+{
+	client.sendMsg(":" + client.getHost() + " 461 " + client.getNickname() + " " + command + " : Not enough parameters\r\n");
+}
+
+void ERR_CHANOPRIVSNEEDED(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 482 " + client.getNickname() + " " + channel_name + " :You're not channel operator\r\n");
+}
+
+void ERR_USERONCHANNEL(Client &client, std::string channel_name, std::string nickName )
+{
+	client.sendMsg(":" + client.getHost() + " 443 " + client.getNickname() + " " + nickName + " " + channel_name + " :is already on channel\r\n");
+}
+
+void ERR_NOTONCHANNEL(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 442 " + client.getNickname() + " " + channel_name + " :You're not on that channel\r\n");
+}
+
+void ERR_NOTREGISTERED(Client &client)
+{
+	 client.sendMsg(":" + client.getHost() + " 451 " + " :You have not registered\r\n");
+}
+
+void ERR_INVITEONLYCHAN(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 473 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+i)\r\n");
+}
+
+void ERR_BADCHANNELKEY(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 475 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+k)\r\n");
+}
+
+void ERR_CHANNELISFULL(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 471 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+l)\r\n");
+}
+
+void ERR_BANNEDFROMCHAN(Client &client, std::string channel_name)
+{
+	client.sendMsg(":" + client.getHost() + " 471 " + client.getNickname() + " " + channel_name + " :Cannot join channel (+b)\r\n");
+}
+
+void ERR_USERNOTINCHANNEL(Client &client, std::string nickName, std::string channel_name)
+{
+	 client.sendMsg(":" + client.getHost() + " 451 " + nickName + " " + channel_name + " :They aren't on that channel\r\n");
+}
+
+void ERR_USERSDONTMATCH(Client &client)
+{
+	 client.sendMsg(":" + client.getHost() + " 502 " + " :Cant change mode for other users\r\n");
+}
+
+void ERR_NONICKNAMEGIVEN(Client &client)
+{
+	 client.sendMsg(":" + client.getHost() + " 431 " + " ::No nickname given\r\n");
+}
+
+void ERR_NICKNAMEINUSE(Client &client, std::string nickName)
+{
+	client.sendMsg(":" + client.getHost() +  " 433 " + nickName + " :Nickname is already in use\r\n");
+}
+
+void ERR_ERRONEUSNICKNAME(Client &client, std::string nickName)
+{
+	client.sendMsg(":" + client.getHost() +  " 432 " + nickName + " :Erroneus nickname\r\n");
+}
+
+void ERR_PASSWDMISMATCH(Client &client)
+{
+	client.sendMsg(":" + client.getHost() +  " 464 " + ":Password incorrect\r\n");
 }

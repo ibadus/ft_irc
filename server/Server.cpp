@@ -8,6 +8,11 @@
 #include "commands.hpp"
 #include "Message.hpp"
 
+#include <bitset>
+#include <climits>
+#include <ctime> 
+#include <cstring>
+
 #include <string>
 #include <iostream>
 #include <exception>
@@ -25,11 +30,11 @@ Server::Server(const std::string &name, const unsigned int port, const std::stri
 	if (this->_socket_fd < 0)
 		throw std::runtime_error("Could not start server.");
 	this->_port = getPort(this->_socket_fd);
+	std::memset(&this->_event, 0, sizeof(this->_event));
 }
 
-Server::~Server() {class server;
-
-	// TODO: free alloc memory
+Server::~Server() {
+	//free alloc memory
 }
 
 
@@ -40,67 +45,87 @@ void Server::flush() {
 	this->_event_count = 0;
 	this->disconnectAllClients();
 	// TODO: delete channels
-	this->_channels.clear();
+	this->channels.clear();
 }
 
 void Server::disconnectClient(const int fd) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getFD() == fd) {
-			it->disconnect();
-			this->_clients.erase(it);
+			it = this->clients.erase(it);
+			epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+			close(fd);
 			break;
 		}
 	}
 }
 
 void Server::disconnectAllClients() {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		it->disconnect();
 	}
-	this->_clients.clear();
+	this->clients.clear();
 }
 
 void Server::sendMsgToAll(std::string msg) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		it->sendMsg(msg);
 	}
 }
-
+/*
 Client &Server::getClientByFD(const int fd) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getFD() == fd) {
 			return *it;
 		}
 	}
-	return *this->_clients.end();
+	return *this->clients.end();
 }
+*/
 
+std::vector<Client>::iterator Server::getClientByFD(const int fd) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
+		if (it->getFD() == fd) {
+			return it;
+		}
+	}
+	return this->clients.end();
+}
 
 Client &Server::getClient(std::string ID)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getID() == ID) {
 			return *it;
 		}
 	}
-	return *this->_clients.end();
+	return *this->clients.end();
 }
 
 Client &Server::getClientByName(std::string nickName)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getNickname() == nickName) {
 			return *it;
 		}
 	}
-	return *this->_clients.end();
+	return *this->clients.end();
 }
 
 
 bool Server::isClientExisting(std::string nickName)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getNickname() == nickName) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Server::isClientExistingID(std::string ID)
+{
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
+		if (it->getID() == ID) {
 			return true;
 		}
 	}
@@ -139,7 +164,7 @@ bool Server::handlePolling() {
 	this->_event_count = 0;
 
 	while (global_status == e_RUN) {
-		std::cout << "[DEBUG] epoll_wait, max events: " << static_cast<int>(this->_events.size()) << std::endl; // TODO: remove
+	//	std::cout << "[DEBUG] epoll_wait, max events: " << static_cast<int>(this->_events.size()) << std::endl; // TODO: remove
 		this->_event_count = epoll_wait(this->_epoll_fd, this->_events.data(), static_cast<int>(this->_events.size()), -1);
 		if (this->_event_count < 0) {
 			std::cerr << "Error: epoll_wait error" << std::endl;
@@ -153,20 +178,21 @@ bool Server::handlePolling() {
 		if (this->_event_count >= static_cast<int>(this->_events.size()))
 			this->_events.resize(this->_events.size() * 2);
 
-		std::cout << "[DEBUG] event_count: " << this->_event_count << std::endl; // TODO: remove
+	//	std::cout << "[DEBUG] event_count: " << this->_event_count << std::endl; // TODO: remove
 
 		for (int i = 0; i < this->_event_count; i++) {
 			// TODO: if ptr is defined on new connection and not after then use 'if (_events[i].data.ptr)' instead of 'if (this->_events[i].data.fd == this->_socket_fd)' below
 			// check line poco/PollSet.cpp:205
-			std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | fd=" << this->_events[i].data.fd << " | u32=" << this->_events[i].data.u32 << " | u64=" << this->_events[i].data.u64 << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
+		//	std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | fd=" << this->_events[i].data.fd << " | u32=" << this->_events[i].data.u32 << " | u64=" << this->_events[i].data.u64 << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
 			if (global_status == e_RUN) {
 				if (this->_events[i].data.fd == this->_socket_fd && this->_events[i].events & EPOLLIN) {
 					this->handleNewConnection(this->_events[i]);
 				} else if (this->_events[i].events & EPOLLIN) {
+		//			std::cout << "I GOT A NEW BRAND MESSAGE TO HANDLE"<< std::endl;
 					this->handleMessages(this->_events[i].data.fd);
 					continue;
 				} else if (this->_events[i].events & EPOLLERR || this->_events[i].events & EPOLLHUP || this->_events[i].events & EPOLLHUP) {
-					std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
+		//			std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, this->_events[i].data.fd, NULL);
 					this->disconnectClient(this->_events[i].data.fd);
 					close(this->_events[i].data.fd);
@@ -194,7 +220,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 		return false;
 	}
 
-	if (this->_clients.size() >= MAX_CLIENTS) {
+	if (this->clients.size() >= MAXclients) {
 		std::cerr << "Error: Max clients reached" << std::endl;
 		close(client_fd);
 		return false;
@@ -216,6 +242,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	}
 
 	struct epoll_event client_event;
+	std::memset(&client_event, 0, sizeof(client_event));
 	client_event.events =  EPOLLIN | EPOLLRDHUP;
 	client_event.data.fd = client_fd;
 	// add client to epoll for performance reasons
@@ -227,24 +254,25 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	}
 
 	Client client(client_fd, *this, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
-	this->_clients.push_back(client);
+	this->clients.push_back(client);
 	std:: cout << TEXT_GREEN << "New connection from Client(" << client.getFD() << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
 
 	return true;
 }
 
 bool Server::handleMessages(const int fd) {
-	Client &client = this->getClientByFD(fd);
-	if (client == *this->_clients.end()) {
+	std::vector<Client>::iterator clientIt = this->getClientByFD(fd);
+	if (clientIt == this->clients.end()) {
 		std::cerr << "Error: Client not found" << std::endl;
 		return false;
 	}
 
+	Client &client = *clientIt;
 	std::string msg;
 	char buffer[BUFFER_SIZE];
 	int bytes_read = 0;
 
-	std::cout << "[DEBUG] Reading fd: " << fd << std::endl; // TODO: remove
+	//std::cout << "[DEBUG] Reading fd: " << fd << std::endl; // TODO: remove
 	bytes_read = recv(fd, buffer, BUFFER_SIZE - 1, 0);
 	if (bytes_read < 0) {
 		std::cerr << "Error: Failed to read from socket err:" << bytes_read << std::endl;
@@ -271,6 +299,7 @@ bool Server::handleMessages(const int fd) {
 
 	client.recv_buffer.append(msg);
 
+/*
 	std::cout << "[DEBUG] CURRENT BUFFER: "; // TODO: remove
 	for (std::string::iterator it = client.recv_buffer.begin(); it != client.recv_buffer.end(); ++it) {
 		if (*it == '\r')
@@ -282,6 +311,7 @@ bool Server::handleMessages(const int fd) {
 	}
 	std::cout << std::endl; // TODO: remove
 
+*/
 	while (client.recv_buffer.find("\r\n") != std::string::npos) {
 		size_t position = client.recv_buffer.find("\r\n");
 
@@ -290,10 +320,14 @@ bool Server::handleMessages(const int fd) {
 
 		client.setClientMessage(Message(command));
 
-		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
+//		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
 
 		// check the return value of commandsHandler since it's a Boolean return value
-		commandsHandler(*this , client);
+		if(!commandsHandler(*this , client))
+		{
+			this->disconnectClient(fd);
+			return false;
+		}
 	}
 
 	return true;
@@ -302,7 +336,7 @@ bool Server::handleMessages(const int fd) {
 void Server::start() {
 	initAllSignalHandlers();
 
-	std::cout << "[DEBUG]" << std::endl << "Socket fd = " << this->_socket_fd << std::endl;
+//	std::cout << "[DEBUG]" << std::endl << "Socket fd = " << this->_socket_fd << std::endl;
 
 	global_status = e_RUN;
 	while (global_status != e_STOP) {
@@ -342,7 +376,7 @@ void Server::start() {
 
 bool	Server::isChannelExisting(std::string name)
 {
-	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+	for (std::vector<Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
 		if (it->getChannelName() == name) {
 			return true;
 		}
@@ -355,16 +389,45 @@ void Server::addChannel(std::string chanName)
 {
 	if (this->isChannelExisting(chanName))
 		return;
-	_channels.push_back(Channel(*this, chanName));
+	std::cout << "NEW CHANNEL CREATED" << std::endl;
+	channels.push_back(Channel(*this, chanName));
 }
 
 
 Channel &Server::getChannel(std::string chanName)
 {
-	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+	for (std::vector<Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
 		if (it->getChannelName() == chanName) {
 			return *it;
 		}
 	}
-	return *this->_channels.end();
+	return *this->channels.end();
+}
+
+
+void	Server::pingAllClients()
+{
+	for(std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		if (it->isOnline())
+		{
+			if (difftime(time(0), it->lastPingSent) > PING_FREQUENCY / 1000)
+			{
+				it->ping();
+				it->lastPingSent = time(0);
+			}
+		}
+	}
+}
+
+
+void Server::checkInactiveClients()
+{
+	for(std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		if (difftime(it->lastPingSent, it->lastPongReceived) > 0 && difftime(time(0), it->lastPingSent) > WAIT_TIME_BEFORE_KILL / 1000)
+		{
+			it->setOnline(false);
+		}
+	}
 }

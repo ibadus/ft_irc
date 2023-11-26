@@ -7,16 +7,15 @@
 void	USER(Server &server, Client &client)
 {
     Message message = client.getClientMessage();
-	std::cout << "CLIENT STATUS USER " << std::endl;
-	std::cout << "REGISTER:  " << client.isRegistered() << std::endl;
-	std::cout << "HAS_NICK:  " << client.getHasNick() << std::endl;
+	if (!client.isOnline())
+		return ;
 	if (client.isRegistered() and client.getHasNick())
 	{
 		if (message.args.size() != 0)
 		{
 			if (message.args.size() > 4)
 			{
-				client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+				ERR_NEEDMOREPARAMS(client, message.cmd);
 				return;
 			}
             client.setUserName(message.args[1]);

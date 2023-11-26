@@ -3,6 +3,7 @@
 #include "Server.hpp"
 #include "../messages/Message.hpp"
 #include <string>
+#include <ctime>
 #include <netinet/in.h> // sockaddr_in
 #include <sys/epoll.h> // epoll_event
 
@@ -14,15 +15,17 @@ class Client
 		std::string ID;
 		
 		std::string recv_buffer;
-
+		time_t						lastPingSent;
+		time_t						lastPongReceived;
 		Client(int fd, Server &server ,std::string host, int port, struct epoll_event event, struct sockaddr_in addrinfo);
 		~Client();
 
-		 Client& operator=(const Client& other);
+		Client& operator=(const Client& other);
 		bool operator==(const Client &other);
 		int getFD() const { return this->_fd; }
 		void setID(std::string id) { this->ID = id; }
 		std::string getID() const { return this->ID; }
+		std::string getIDCMD() const { return (":" + this->ID); }
 		std::string getHost() const { return this->_host; }
 		int getPort() const { return this->_port; }
 		Message getClientMessage() const  { return this->_client_msg; }
@@ -38,8 +41,8 @@ class Client
 		void setRealName(std::string realname) { this->_realname = realname; }
 		std::string getPreviousNick ();
 		void setNickHistory(std::string nickname) { this->_nick_history.push_back(nickname); }
-		size_t get_G_ID() { return this->g_ID; }
 		void sendMsg(std::string msg);
+		void ping();
 		void disconnect();
 
 		bool isRegistered() const { return this->_registered; }
@@ -62,7 +65,6 @@ class Client
 		Server &getServer() { return this->_server; }
  
 	private:
-		static size_t g_ID; // auto increment
 
 		int _fd;
 		Server &_server;
@@ -83,4 +85,5 @@ class Client
 		bool _hasNickName;
 		bool _registered;
 		bool _identified;
+		
 };
