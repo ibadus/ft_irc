@@ -30,7 +30,7 @@ void	NOTICE(Server &server, Client &client)
         if (i != (int)message.args.size() - 1)
             msg += " ";
     }
-	std::string msgToSend = ":" + client.getNickname() + " NOTICE " + nickNameClientReceiver + " :" + msg + "\r\n";
+	std::string msgToSend = ":" + client.getNickname() + " NOTICE " + nickNameClientReceiver + " " + msg + "\r\n";
 	server.getClientByName(nickNameClientReceiver).sendMsg(msgToSend);
 	return;
 }

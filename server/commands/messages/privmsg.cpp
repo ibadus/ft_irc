@@ -43,7 +43,7 @@ void	PRIVMSG(Server &server, Client &client)
 			client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
 			return;
 		}
-		std::string msgToSend = ":" + client.getNickname() + " PRIVMSG " + channelName + " :" + msg + "\r\n";
+		std::string msgToSend = ":" + client.getNickname() + " PRIVMSG " + channelName + " " + msg + "\r\n";
 		channel.sendMessageToClients(msgToSend, client.getNickname());
 		return;
 	}
