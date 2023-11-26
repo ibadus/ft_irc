@@ -5,6 +5,7 @@
 #include <sys/epoll.h>
 #include "Client.hpp"
 #include "Channel.hpp"
+#include <ctime> 
 // Defines the maximum size of the batch of IO events to process on
 // each loop iteration. A larger number will increase throughput but
 // decrease concurrency.
@@ -12,7 +13,8 @@
 
 // Defines the maximum size of the buffer used to receive incoming messages.
 #define BUFFER_SIZE 1024
-
+#define WAIT_TIME_BEFORE_KILL 19000
+#define PING_FREQUENCY 12000
 #define MAXclients 25
 
 class Client;
@@ -36,6 +38,8 @@ class Server {
 		std::vector<Client>::iterator getClientByFD(const int fd);
 		Client &getClient(std::string ID);
 		Client &getClientByName(std::string nickName);
+		void	pingAllClients();
+		void checkInactiveClients();
 		std::string getServerName() {return this->_name;}
 		void start();
 		void flush();

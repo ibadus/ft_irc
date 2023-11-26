@@ -178,8 +178,6 @@ void	Channel::sendMessageToClients(std::string msg, std::string sender)
 {
  	for( std::set<std::string>::iterator it = this->clientConnected.begin(); it != this->clientConnected.end(); it++ )
 	{
-		std::cout <<"Iterator = " <<  *it << std::endl;
-		std::cout <<"NICKNAME OF A CLIENT GET WITH THE SERVER = " <<  this->_server.getClient(*it).getNickname() << std::endl;
 		if (this->_server.getClient(*it).getNickname() != sender)
 		{
 			if (sendCustom(this->_server.getClient(*it).getFD() , msg.c_str(), msg.size(), 0) == -1)

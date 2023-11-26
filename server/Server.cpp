@@ -10,6 +10,7 @@
 
 #include <bitset>
 #include <climits>
+#include <ctime> 
 #include <cstring>
 
 #include <string>
@@ -399,4 +400,32 @@ Channel &Server::getChannel(std::string chanName)
 		}
 	}
 	return *this->channels.end();
+}
+
+
+void	Server::pingAllClients()
+{
+	for(std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		if (it->isOnline())
+		{
+			if (difftime(time(0), it->lastPingSent) > PING_FREQUENCY / 1000)
+			{
+				it->ping();
+				it->lastPingSent = time(0);
+			}
+		}
+	}
+}
+
+
+void Server::checkInactiveClients()
+{
+	for(std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		if (difftime(it->lastPingSent, it->lastPongReceived) > 0 && difftime(time(0), it->lastPingSent) > WAIT_TIME_BEFORE_KILL / 1000)
+		{
+			it->setOnline(false);
+		}
+	}
 }
