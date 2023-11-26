@@ -73,36 +73,15 @@ void sendNick(Client &client)
 	client.sendMsg(":" + client.getPreviousNick() + " NICK " + client.getNickname() + "\r\n");
 }
 
-void sendQUIT(Client &client)
+void sendQUIT(Client &receiver, Client &leaver)
 {
-	client.sendMsg(client.getID() + " QUIT\r\n");
+	receiver.sendMsg(leaver.getID() + " QUIT\r\n");
 }
 
-void sendQUITREASON(Client &client, std::string message)
+void sendQUITREASON(Client &receiver, Client &leaver ,std::string message)
 {
-	client.sendMsg(client.getID() + " QUIT " + message + "\r\n");
+	receiver.sendMsg(leaver.getID() + " QUIT " + message + "\r\n");
 }
-
-void sendQuitToAllExceptUser(Server &server, Client &client, std::string reason)
-{
-	std::vector<Client> clientList = server.getClientList();
-	std::string nickname = client.getNickname();
-	for( std::vector<Client>::iterator it = clientList.begin(); it != clientList.end(); it++ )
-	{
-		if (it == clientList.end())
-		{
-			continue;
-		}
-		if (it->getNickname() != nickname)
-		{
-			if (reason.size() != 0)
-				sendQUITREASON(*it, reason);
-			else 
-				sendQUIT(*it);
-		}
-	}
-}
-
 
 void sendPART(Server &server, Client &client, std::string channel_name)
 {
