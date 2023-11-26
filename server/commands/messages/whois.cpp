@@ -20,7 +20,7 @@ void	WHOIS(Server &server, Client &client)
 	(void)server;
     Message message = client.getClientMessage();
 	if (message.args.size() != 1) {
-		client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return;
 	}
 	if (!client.isIdentified())

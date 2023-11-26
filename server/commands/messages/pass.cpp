@@ -4,6 +4,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <unistd.h>
 #include <iostream>
 
 // https://modern.ircdocs.horse/#pass-message
@@ -34,5 +35,6 @@ void PASS(Server &server, Client &client) {
 		client.sendMsg(TEXT_RED + std::string("Password incorrect.") + TEXT_RESET);
 		client.setOnline(false);
 		client.disconnect();
+		close(client.getFD());
 	}
 }

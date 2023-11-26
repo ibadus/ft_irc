@@ -30,17 +30,17 @@ void	PRIVMSG(Server &server, Client &client)
 		Channel& channel = server.getChannel(channelName);
 		if (!server.isChannelExisting(channelName))
 		{
-		    client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+			ERR_NOSUCHCHANNEL(client,channelName);
 			return;
 		}
 		if (channel.isClientBanned(client.getID()))
 		{
-		    client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+		    ERR_BANNEDFROMCHAN(client, channelName);
 			return;
 		}
 		if (!channel.isclientConnected(client.getID()))
 		{
-			client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+			ERR_NOTREGISTERED(client);
 			return;
 		}
 		std::string msgToSend = ":" + client.getNickname() + " PRIVMSG " + channelName + " " + msg + "\r\n";
@@ -52,7 +52,7 @@ void	PRIVMSG(Server &server, Client &client)
 		std::string nickNameClientReceiver = message.args[0];
 		if (!server.isClientExisting(nickNameClientReceiver))
 		{
-			client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+			ERR_NOSUCHNICK(client, nickNameClientReceiver);
 			return;
 		}
         std::string msg;

@@ -15,7 +15,7 @@ void	USER(Server &server, Client &client)
 		{
 			if (message.args.size() > 4)
 			{
-				client.sendMsg("461 ERR_NEEDMOREPARAMS:Invalid number of arguments.");
+				ERR_NEEDMOREPARAMS(client, message.cmd);
 				return;
 			}
             client.setUserName(message.args[1]);
