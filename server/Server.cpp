@@ -34,7 +34,7 @@ Server::Server(const std::string &name, const unsigned int port, const std::stri
 }
 
 Server::~Server() {
-	// TODO: free alloc memory
+	//free alloc memory
 }
 
 
@@ -164,7 +164,7 @@ bool Server::handlePolling() {
 	this->_event_count = 0;
 
 	while (global_status == e_RUN) {
-		std::cout << "[DEBUG] epoll_wait, max events: " << static_cast<int>(this->_events.size()) << std::endl; // TODO: remove
+	//	std::cout << "[DEBUG] epoll_wait, max events: " << static_cast<int>(this->_events.size()) << std::endl; // TODO: remove
 		this->_event_count = epoll_wait(this->_epoll_fd, this->_events.data(), static_cast<int>(this->_events.size()), -1);
 		if (this->_event_count < 0) {
 			std::cerr << "Error: epoll_wait error" << std::endl;
@@ -178,21 +178,21 @@ bool Server::handlePolling() {
 		if (this->_event_count >= static_cast<int>(this->_events.size()))
 			this->_events.resize(this->_events.size() * 2);
 
-		std::cout << "[DEBUG] event_count: " << this->_event_count << std::endl; // TODO: remove
+	//	std::cout << "[DEBUG] event_count: " << this->_event_count << std::endl; // TODO: remove
 
 		for (int i = 0; i < this->_event_count; i++) {
 			// TODO: if ptr is defined on new connection and not after then use 'if (_events[i].data.ptr)' instead of 'if (this->_events[i].data.fd == this->_socket_fd)' below
 			// check line poco/PollSet.cpp:205
-			std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | fd=" << this->_events[i].data.fd << " | u32=" << this->_events[i].data.u32 << " | u64=" << this->_events[i].data.u64 << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
+		//	std::cout << "[DEBUG] event: ptr=" << this->_events[i].data.ptr << " | fd=" << this->_events[i].data.fd << " | u32=" << this->_events[i].data.u32 << " | u64=" << this->_events[i].data.u64 << " | events=" << this->_events[i].events << " (EPOLLIN=" << EPOLLIN << ")" << std::endl; // TODO: remove
 			if (global_status == e_RUN) {
 				if (this->_events[i].data.fd == this->_socket_fd && this->_events[i].events & EPOLLIN) {
 					this->handleNewConnection(this->_events[i]);
 				} else if (this->_events[i].events & EPOLLIN) {
-					std::cout << "I GOT A NEW BRAND MESSAGE TO HANDLE"<< std::endl;
+		//			std::cout << "I GOT A NEW BRAND MESSAGE TO HANDLE"<< std::endl;
 					this->handleMessages(this->_events[i].data.fd);
 					continue;
 				} else if (this->_events[i].events & EPOLLERR || this->_events[i].events & EPOLLHUP || this->_events[i].events & EPOLLHUP) {
-					std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
+		//			std::cerr << TEXT_RED << "Error: Connection Client fd: " << this->_events[i].data.fd << " closed" << TEXT_RESET << std::endl;
 					epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, this->_events[i].data.fd, NULL);
 					this->disconnectClient(this->_events[i].data.fd);
 					close(this->_events[i].data.fd);
@@ -272,7 +272,7 @@ bool Server::handleMessages(const int fd) {
 	char buffer[BUFFER_SIZE];
 	int bytes_read = 0;
 
-	std::cout << "[DEBUG] Reading fd: " << fd << std::endl; // TODO: remove
+	//std::cout << "[DEBUG] Reading fd: " << fd << std::endl; // TODO: remove
 	bytes_read = recv(fd, buffer, BUFFER_SIZE - 1, 0);
 	if (bytes_read < 0) {
 		std::cerr << "Error: Failed to read from socket err:" << bytes_read << std::endl;
@@ -299,6 +299,7 @@ bool Server::handleMessages(const int fd) {
 
 	client.recv_buffer.append(msg);
 
+/*
 	std::cout << "[DEBUG] CURRENT BUFFER: "; // TODO: remove
 	for (std::string::iterator it = client.recv_buffer.begin(); it != client.recv_buffer.end(); ++it) {
 		if (*it == '\r')
@@ -310,6 +311,7 @@ bool Server::handleMessages(const int fd) {
 	}
 	std::cout << std::endl; // TODO: remove
 
+*/
 	while (client.recv_buffer.find("\r\n") != std::string::npos) {
 		size_t position = client.recv_buffer.find("\r\n");
 
@@ -318,7 +320,7 @@ bool Server::handleMessages(const int fd) {
 
 		client.setClientMessage(Message(command));
 
-		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
+//		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
 
 		// check the return value of commandsHandler since it's a Boolean return value
 		if(!commandsHandler(*this , client))
@@ -334,7 +336,7 @@ bool Server::handleMessages(const int fd) {
 void Server::start() {
 	initAllSignalHandlers();
 
-	std::cout << "[DEBUG]" << std::endl << "Socket fd = " << this->_socket_fd << std::endl;
+//	std::cout << "[DEBUG]" << std::endl << "Socket fd = " << this->_socket_fd << std::endl;
 
 	global_status = e_RUN;
 	while (global_status != e_STOP) {

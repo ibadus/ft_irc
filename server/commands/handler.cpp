@@ -14,7 +14,7 @@ bool commandsHandler(Server &server, Client &client) {
 
 	Message message = client.getClientMessage();
 
-	std::cout << TEXT_GREEN << "[" << message.msg.length() << "b] " << client.getFD() << "(" << client.ID << ")" << "cmd: " << message.cmd << TEXT_RESET << std::endl;
+//	std::cout << TEXT_GREEN << "[" << message.msg.length() << "b] " << client.getFD() << "(" << client.ID << ")" << "cmd: " << message.cmd << TEXT_RESET << std::endl;
 
 	if (message.cmd == "PASS") {
 		PASS(server, client);

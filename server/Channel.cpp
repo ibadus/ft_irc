@@ -77,23 +77,6 @@ void Channel::addClient(std::string ID)
 {
 	Client& client = this->_server.getClient(ID);
 	this->clientConnected.insert(client.getID());
-	std::cout << "**** CHANNEL NAME ****" << std::endl;
-	std::cout << " " << this->getChannelName() << " " << std::endl;
-	std::cout << "****FIRST INSERTION****" << std::endl;
-	std::cout << "**** MEMBRE DU CHANNEL ****" << std::endl;
-	std::cout << std::endl;
-	for( std::set<std::string>::iterator it = this->clientConnected.begin(); it != this->clientConnected.end(); it++ )
-	{	
-			std::cout << " - ID : " << *it << std::endl;
-	}
-	std::cout << "**** AVEC FONCTION MEMBRE DU CHANNEL ****" << std::endl;
-	std::cout << std::endl;
-	for( std::set<std::string>::iterator it = this->clientConnected.begin(); it != this->clientConnected.end(); it++ )
-	{	
-			std::cout << " - ID : " << *it << std::endl;
-	}
-	std::cout << "CLIENT ID = " << client.getID() << std::endl;
-	std::cout << "CLIENT NICKNAME = " << client.getNickname() << std::endl;
 	// messages de welcome envoyes selon norme IRC 1459 et http://chi.cs.uchicago.edu/chirc/assignment3.html7
 	std::string clientList;
 	for( std::set<std::string>::iterator it = this->clientConnected.begin(); it != this->clientConnected.end(); it++ )
