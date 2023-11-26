@@ -39,7 +39,6 @@ class Client
 		void setRealName(std::string realname) { this->_realname = realname; }
 		std::string getPreviousNick ();
 		void setNickHistory(std::string nickname) { this->_nick_history.push_back(nickname); }
-		size_t get_G_ID() { return this->g_ID; }
 		void sendMsg(std::string msg);
 		void disconnect();
 
@@ -63,7 +62,6 @@ class Client
 		Server &getServer() { return this->_server; }
  
 	private:
-		static size_t g_ID; // auto increment
 
 		int _fd;
 		Server &_server;

@@ -10,7 +10,6 @@
 
 // https://modern.ircdocs.horse/#nick-message
 void NICK(Server &server, Client &client) {
-	std::vector<Client> clientList = server.getClientList();
 	Message message = client.getClientMessage();
 
 	if (!client.isOnline())
@@ -36,8 +35,8 @@ void NICK(Server &server, Client &client) {
 	}
 
 	// check if nickname is already in use
-	for (size_t i = 0; i < clientList.size(); i++) {
-		if (clientList[i].getNickname() == message.args[0]) {
+	for (size_t i = 0; i < server.clients.size(); i++) {
+		if (server.clients[i].getNickname() == message.args[0]) {
 			ERR_NICKNAMEINUSE(client, message.args[0]);
 			client.setOnline(false);
 			return;
@@ -48,16 +47,50 @@ void NICK(Server &server, Client &client) {
 	{
 		if (client.isRegistered())
 		{
+
 			client.setNickname(message.args[0]);
+			std::string previousId = client.getID();
 			client.setNickHistory(message.args[0]);
 			client.setHasNick(true);
+
+            client.setID(client.getNickname() + "!" + client.getUserName() + "@" + client.getHost());
+
+			for (size_t i = 0; i < server.channels.size(); i++) {
+            	Channel &channel = server.channels[i];
+				if (channel.isclientConnected(previousId)) {
+					bool isInvited = false;
+					bool isOp = false;
+					bool isBan = false;
+					if (channel.isClientInvited(previousId))
+					{
+						channel.clientInvited.erase(previousId);
+						isInvited = true;
+					}
+					if (channel.isClientOperatorChannel(previousId))
+					{
+						channel.clientOperators.erase(previousId);
+						isOp = true;
+					}
+					if (channel.isClientBanned(previousId))
+					{
+						channel.clientBanned.erase(previousId);
+						isBan = true;
+					}
+					channel.clientConnected.erase(previousId);
+					channel.clientConnected.insert(client.getID());
+					if (isInvited)
+						channel.clientInvited.insert(client.getID());
+					if (isBan)
+						channel.clientBanned.insert(client.getID());
+					if (isOp)
+						channel.clientOperators.insert(client.getID());
+            	}
+        	}
 		}
-		if (client.isIdentified())
-		{
-			sendNick(client);
-		}
-		return ;
 	}
-	// std::cout << "MESSAGE ARGS[0]: " << message.args[0] << std::endl;
-	// std::cout << "CLIENT NICKNAME:  " << client.getNickname() << std::endl;
+	if (client.isIdentified())
+	{
+		sendNick(client);
+	}
+	return ;
 }

@@ -52,7 +52,7 @@ int		handleOperatorChannelMode(Server &server, Client &client, char sign, char m
 	{
 		if (mode == 'o')
 		{
-			server.getChannel(chan).getClientOperator().insert(server.getClientByName(user).getID());
+			server.getChannel(chan).clientOperators.insert(server.getClientByName(user).getID());
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+o" + "\r\n", "");
 			return (0);
 		}
@@ -61,7 +61,7 @@ int		handleOperatorChannelMode(Server &server, Client &client, char sign, char m
 	{
 		if (mode == 'o')
 		{
-			server.getChannel(chan).getClientOperator().erase(server.getClientByName(user).getID());
+			server.getChannel(chan).clientOperators.erase(server.getClientByName(user).getID());
 			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-o" + "\r\n", "");
 			return(0);
 		}
@@ -141,7 +141,7 @@ int		handleSizeChannelMode(Server &server, Client &client, char sign, char mode,
 			}
 			size_t output;
 			stream >> output;
-			if (output < static_cast<size_t>(server.getChannel(chan).getClientConnectList().size()))
+			if (output < static_cast<size_t>(server.getChannel(chan).clientConnected.size()))
 			{
 				std::cout << "Size Limit must be smaller than the current connected users numbers." << std::endl;
 				return (0);

@@ -44,13 +44,13 @@ void Server::flush() {
 	this->_event_count = 0;
 	this->disconnectAllClients();
 	// TODO: delete channels
-	this->_channels.clear();
+	this->channels.clear();
 }
 
 void Server::disconnectClient(const int fd) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getFD() == fd) {
-			it = this->_clients.erase(it);
+			it = this->clients.erase(it);
 			epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, fd, NULL);
 			close(fd);
 			break;
@@ -59,61 +59,61 @@ void Server::disconnectClient(const int fd) {
 }
 
 void Server::disconnectAllClients() {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		it->disconnect();
 	}
-	this->_clients.clear();
+	this->clients.clear();
 }
 
 void Server::sendMsgToAll(std::string msg) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		it->sendMsg(msg);
 	}
 }
 /*
 Client &Server::getClientByFD(const int fd) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getFD() == fd) {
 			return *it;
 		}
 	}
-	return *this->_clients.end();
+	return *this->clients.end();
 }
 */
 
 std::vector<Client>::iterator Server::getClientByFD(const int fd) {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getFD() == fd) {
 			return it;
 		}
 	}
-	return this->_clients.end();
+	return this->clients.end();
 }
 
 Client &Server::getClient(std::string ID)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getID() == ID) {
 			return *it;
 		}
 	}
-	return *this->_clients.end();
+	return *this->clients.end();
 }
 
 Client &Server::getClientByName(std::string nickName)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getNickname() == nickName) {
 			return *it;
 		}
 	}
-	return *this->_clients.end();
+	return *this->clients.end();
 }
 
 
 bool Server::isClientExisting(std::string nickName)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getNickname() == nickName) {
 			return true;
 		}
@@ -123,7 +123,7 @@ bool Server::isClientExisting(std::string nickName)
 
 bool Server::isClientExistingID(std::string ID)
 {
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it) {
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		if (it->getID() == ID) {
 			return true;
 		}
@@ -219,7 +219,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 		return false;
 	}
 
-	if (this->_clients.size() >= MAX_CLIENTS) {
+	if (this->clients.size() >= MAXclients) {
 		std::cerr << "Error: Max clients reached" << std::endl;
 		close(client_fd);
 		return false;
@@ -253,7 +253,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 	}
 
 	Client client(client_fd, *this, std::string(inet_ntoa(client_addr.sin_addr)), static_cast<int>(client_addr.sin_port), event, client_addr);
-	this->_clients.push_back(client);
+	this->clients.push_back(client);
 	std:: cout << TEXT_GREEN << "New connection from Client(" << client.getFD() << ") from: " << std::string(inet_ntoa(client_addr.sin_addr)) << ":" << ntohs(client_addr.sin_port) << TEXT_RESET << std::endl;
 
 	return true;
@@ -261,7 +261,7 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 
 bool Server::handleMessages(const int fd) {
 	std::vector<Client>::iterator clientIt = this->getClientByFD(fd);
-	if (clientIt == this->_clients.end()) {
+	if (clientIt == this->clients.end()) {
 		std::cerr << "Error: Client not found" << std::endl;
 		return false;
 	}
@@ -373,7 +373,7 @@ void Server::start() {
 
 bool	Server::isChannelExisting(std::string name)
 {
-	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+	for (std::vector<Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
 		if (it->getChannelName() == name) {
 			return true;
 		}
@@ -387,16 +387,16 @@ void Server::addChannel(std::string chanName)
 	if (this->isChannelExisting(chanName))
 		return;
 	std::cout << "NEW CHANNEL CREATED" << std::endl;
-	_channels.push_back(Channel(*this, chanName));
+	channels.push_back(Channel(*this, chanName));
 }
 
 
 Channel &Server::getChannel(std::string chanName)
 {
-	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ++it) {
+	for (std::vector<Channel>::iterator it = this->channels.begin(); it != this->channels.end(); ++it) {
 		if (it->getChannelName() == chanName) {
 			return *it;
 		}
 	}
-	return *this->_channels.end();
+	return *this->channels.end();
 }

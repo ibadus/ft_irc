@@ -13,17 +13,21 @@
 // Defines the maximum size of the buffer used to receive incoming messages.
 #define BUFFER_SIZE 1024
 
-#define MAX_CLIENTS 25
+#define MAXclients 25
 
 class Client;
 
 class Server {
+
+
 		public:
+		std::vector<Client> clients;
+		std::vector<Channel> channels;
 		Server(const std::string &name, const unsigned int port, const std::string &password);
 		~Server();
 		std::string getServerPassword() const { return this->_password; }
-		std::vector<Client> getClientList() const { return this->_clients;}
-		std::vector<Channel> getChannelList() const { return this->_channels; }
+		std::vector<Client> getClientList() const { return this->clients;}
+		std::vector<Channel> getChannelList() const { return this->channels; }
 		Channel &getChannel(std::string chanName);
 		void addChannel(std::string chanName);
 		bool	isChannelExisting(std::string name);
@@ -43,9 +47,6 @@ class Server {
 		int _socket_fd;
 		int _epoll_fd;
 		int _event_count;
-
-		std::vector<Client> _clients;
-		std::vector<Channel> _channels;
 
 		std::vector<struct epoll_event> _events;
 		struct epoll_event _event;

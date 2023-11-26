@@ -21,7 +21,7 @@ void	LIST(Server &server, Client  &client)
 	else
 		listOfChannelToShow = split(message.args[0], ",");
 	std::string channel_name;
-    std::vector<Channel> channelList =  server.getChannelList();
+    std::vector<Channel> &channelList =  server.channels;
 	for (std::vector<std::string>::iterator it = listOfChannelToShow.begin(); it != listOfChannelToShow.end(); it++)
 	{
 		channel_name = *it;

@@ -31,7 +31,7 @@ void	NAMES(Server &server, Client &client)
 		{
 			if (channel_name == "names" || channel_name == it_channel->getChannelName())
 			{
-				for (std::set<std::string>::iterator it_client=it_channel->getClientConnectList().begin(); it_client != it_channel->getClientConnectList().end(); it_client++)
+				for (std::set<std::string>::iterator it_client=it_channel->clientConnected.begin(); it_client != it_channel->clientConnected.end(); it_client++)
 				{
 					RPL_NAMREPLY2(client, server.getClient(*it_client).getNickname(), it_channel->getChannelName());
 				}

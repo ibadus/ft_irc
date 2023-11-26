@@ -10,6 +10,11 @@ class Server;
 class Channel
 {
 	public:
+
+		std::set<std::string>			clientConnected;
+		std::set<std::string>			clientBanned;
+		std::set<std::string>			clientOperators;
+		std::set<std::string>			clientInvited;
 		Channel(Server &server, std::string channel_name);
 		~Channel( void );
 
@@ -17,13 +22,15 @@ class Channel
 		bool	isClientInvited(std::string ID);
 		bool	isClientBanned(std::string ID);
 		void	addClient(std::string ID);
+		void	addBanned(std::string ID);
+		void	addConnected(std::string ID);
 		void	addOperator(std::string ID);
 		void	addInvited(std::string ID);
 		void	removeConnected(std::string ID);
 		void	removeBanned(std::string ID);
+		void	removeInvited(std::string ID);
 		void	removeOperator(std::string ID);
 		bool	isClientOperatorChannel(std::string ID);
-		std::set<std::string> getClientConnectList() const { return _clientConnected; };
 		void	sendMessageToClients( std::string msg, std::string sender);
 
 		std::string 	getChannelPassw() { return this->_passwd; }
@@ -43,8 +50,6 @@ class Channel
 		
 		bool 	getInviteMode() { return this->_isInviteOnly; }
 		void 	setInviteMode(bool isInviteOnly) { this->_isInviteOnly = isInviteOnly; }
-
-		std::set<std::string> getClientOperator() { return this->_clientOperators; }
 		std::string getChannelName() const;
 		std::string getTopic() const;
 		void setTopic(std::string topic) { this->_topic = topic; }
@@ -57,10 +62,6 @@ class Channel
 		std::string						_topic;
 		size_t							_sizeLimit;
 		std::string						_passwd;
-		std::set<std::string>			_clientConnected; // ID is used to identify a client
-		std::set<std::string>			_clientBanned; // ID is used to identify a client
-		std::set<std::string>			_clientOperators;
-		std::set<std::string>			_clientInvited;
 		bool							_isInviteOnly;
 		bool							_isPasswordOnly;
 		bool							_isSizeLimit;

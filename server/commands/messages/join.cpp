@@ -45,7 +45,7 @@ void JOIN(Server &server, Client &client)
 				ERR_BADCHANNELKEY(client,channel_name);
 				return;
 			}
-			if (server.getChannel(channel_name).getSizeLimitMode() && (static_cast<int>(server.getChannel(channel_name).getSizeLimit()) <= static_cast<int>(server.getChannel(channel_name).getClientConnectList().size())))
+			if (server.getChannel(channel_name).getSizeLimitMode() && (static_cast<int>(server.getChannel(channel_name).getSizeLimit()) <= static_cast<int>(server.getChannel(channel_name).clientConnected.size())))
 			{
 				ERR_CHANNELISFULL(client, channel_name); // TODO : PUT THE RIGHT MESSAGE ERROR
 				return;
@@ -57,7 +57,7 @@ void JOIN(Server &server, Client &client)
 			}
 			else
 			{
-				if (server.getChannel(channel_name).getClientOperator().size() == 0)
+				if (server.getChannel(channel_name).clientOperators.size() == 0)
 					server.getChannel(channel_name).addOperator(client.getID());
 				server.getChannel(channel_name).addClient(client.getID());
 			}
@@ -65,4 +65,3 @@ void JOIN(Server &server, Client &client)
 	}
 	return ;
 }
-
