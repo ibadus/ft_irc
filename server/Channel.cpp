@@ -161,10 +161,13 @@ void	Channel::sendMessageToClients(std::string msg, std::string sender)
 {
  	for( std::set<std::string>::iterator it = this->clientConnected.begin(); it != this->clientConnected.end(); it++ )
 	{
-		if (this->_server.getClient(*it).getNickname() != sender)
+		if (this->_server.isClientExistingID(*it))
 		{
-			if (sendCustom(this->_server.getClient(*it).getFD() , msg.c_str(), msg.size(), 0) == -1)
-				std::cout << "error sending message: " << std::endl;
+			if (this->_server.getClient(*it).getNickname() != sender)
+			{
+				if (sendCustom(this->_server.getClient(*it).getFD() , msg.c_str(), msg.size(), 0) == -1)
+					std::cout << "error sending message: " << std::endl;
+			}
 		}
 	}
 }
