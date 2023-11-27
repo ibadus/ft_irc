@@ -12,7 +12,9 @@ void	PART(Server &server, Client &client)
 {
     Message message = client.getClientMessage();
     if (!client.isOnline())
+	{
         return;
+	}
     if (message.args.size() != 1) {
 		ERR_NEEDMOREPARAMS(client, message.cmd);
 		return;
@@ -44,7 +46,7 @@ void	PART(Server &server, Client &client)
 			{
                 sendPART(server, client, channel_name);
 			}
-			server.getChannel(channel_name).removeConnected(client.getID());
+			server.getChannel(channel_name).clientConnected.erase(client.getID());
 		}
 	}
 	return ;
