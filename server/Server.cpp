@@ -62,7 +62,6 @@ void Server::disconnectClient(const int fd) {
 void Server::disconnectAllClients() {
 	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
 		it->disconnect();
-		this->disconnectClient(it->getFD());
 	}
 	this->clients.clear();
 }

@@ -57,7 +57,7 @@ void JOIN(Server &server, Client &client)
 					return;
 				}
 				if (server.getChannel(channel_name).clientOperators.size() == 0){
-					server.getChannel(channel_name).addOperator(client.getID());
+					server.getChannel(channel_name).clientOperators.insert(client.getID());
 				}
 				server.getChannel(channel_name).addClient(client.getID());
 				return ;
