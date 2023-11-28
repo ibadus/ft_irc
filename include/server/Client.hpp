@@ -13,7 +13,6 @@ class Client
 {
 	public:
 		std::string ID;
-		
 		std::string recv_buffer;
 		time_t						lastPingSent;
 		time_t						lastPongReceived;
@@ -21,7 +20,6 @@ class Client
 		~Client();
 
 		Client& operator=(const Client& other);
-		bool operator==(const Client &other);
 		int getFD() const { return this->_fd; }
 		void setID(std::string id) { this->ID = id; }
 		std::string getID() const { return this->ID; }

@@ -5,7 +5,6 @@
 #include "commands.hpp"
 #include "utils.hpp"
 
-
 Channel::Channel(Server& serv, std::string channel_name):
 _server(serv), _name(channel_name), _isInviteOnly(false), _isPasswordOnly(false), _isSizeLimit(false), _isTopicLimited(false)
 {
@@ -32,9 +31,19 @@ bool Channel::isClientInvited(std::string ID)
 
 Channel& Channel::operator=(const Channel& other) {
 	if (this != &other) {
-		_server = other.getServer();
-		_name = other.getChannelName();
-		_topic = other.getTopic();
+		_name = other._name;
+		_topic = other._topic;
+		_sizeLimit = other._sizeLimit;
+		_passwd = other._passwd;
+		_isInviteOnly = other._isInviteOnly;
+		_isPasswordOnly = other._isPasswordOnly;
+		_isSizeLimit = other._isSizeLimit;
+		_isTopicLimited = other._isTopicLimited;
+
+		clientConnected = other.clientConnected;
+		clientBanned = other.clientBanned;
+		clientOperators = other.clientOperators;
+		clientInvited = other.clientInvited;
 	}
 	return *this;
 }

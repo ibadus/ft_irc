@@ -16,6 +16,7 @@
 #include <string>
 #include <iostream>
 #include <exception>
+#include <algorithm>
 #include <unistd.h> // close
 #include <sys/epoll.h>
 #include <sys/socket.h> // accept
@@ -37,6 +38,31 @@ Server::~Server() {
 	//free alloc memory
 }
 
+Server& Server::operator=(const Server& other) {
+    if (this != &other) { // Check for self-assignment
+        _name = other._name;
+        _password = other._password;
+        _port = other._port;
+        _socket_fd = other._socket_fd;
+        _epoll_fd = other._epoll_fd;
+        _event_count = other._event_count;
+        _events = other._events;
+        _event = other._event;
+
+        clients.clear();
+        clients.reserve(other.clients.size());
+        for (std::vector<Client>::const_iterator it = other.clients.begin(); it != other.clients.end(); ++it) {
+            clients.push_back(*it);
+        }
+
+        channels.clear();
+        channels.reserve(other.channels.size());
+        for (std::vector<Channel>::const_iterator it = other.channels.begin(); it != other.channels.end(); ++it) {
+            channels.push_back(*it);
+        }
+    }
+    return *this;
+}
 
 void Server::flush() {
 	std::cout << TEXT_YELLOW << "Flushing..." << TEXT_RESET << std::endl;
@@ -49,14 +75,17 @@ void Server::flush() {
 }
 
 void Server::disconnectClient(const int fd) {
-	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
-		if (it->getFD() == fd) {
-			it = this->clients.erase(it);
-			epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, fd, NULL);
-			close(fd);
-			break;
-		}
+	std::vector<Client>::iterator client = this->getClientByFD(fd);
+	for (std::vector<Channel>::iterator it=this->channels.begin(); it != this->channels.end(); it++)
+	{
+		it->clientConnected.erase(client->getID());
+		it->clientOperators.erase(client->getID());
+		it->clientBanned.erase(client->getID());
+		it->clientInvited.erase(client->getID());
+
 	}
+	close(client->getFD());
+	this->clients.erase(client);
 }
 
 void Server::disconnectAllClients() {
@@ -80,6 +109,8 @@ std::vector<Client>::iterator Server::getClientByFD(const int fd) {
 	}
 	return this->clients.end();
 }
+
+
 
 Client &Server::getClient(std::string ID)
 {
@@ -271,7 +302,7 @@ bool Server::handleMessages(const int fd) {
 
 	msg.append(buffer, bytes_read);
 
-	// if bytes_read == BUFFER_SIZE - 1, there is more to read
+
 	while (bytes_read == BUFFER_SIZE - 1) {
 		bytes_read = recv(fd, buffer, BUFFER_SIZE - 1, 0);
 		if (bytes_read < 0) {
@@ -281,7 +312,6 @@ bool Server::handleMessages(const int fd) {
 		msg.append(buffer, bytes_read);
 	}
 
-	// if bytes_read == 0 by recv, the client has disconnected
 	if (msg.length() == 0) {
 		this->disconnectClient(fd);
 		return false;
@@ -289,19 +319,6 @@ bool Server::handleMessages(const int fd) {
 
 	client.recv_buffer.append(msg);
 
-/*
-	std::cout << "[DEBUG] CURRENT BUFFER: "; // TODO: remove
-	for (std::string::iterator it = client.recv_buffer.begin(); it != client.recv_buffer.end(); ++it) {
-		if (*it == '\r')
-			std::cout << "\\r";
-		else if (*it == '\n')
-			std::cout << "\\n";
-		else
-			std::cout << *it;
-	}
-	std::cout << std::endl; // TODO: remove
-
-*/
 	while (client.recv_buffer.find("\r\n") != std::string::npos) {
 		size_t position = client.recv_buffer.find("\r\n");
 
@@ -309,10 +326,6 @@ bool Server::handleMessages(const int fd) {
 		client.recv_buffer = client.recv_buffer.substr(position + 2); // remove command (with \r\n) from buffer
 
 		client.setClientMessage(Message(command));
-
-//		std::cout << "[DEBUG] handling COMMAND: '" << command << "'" << std::endl; // TODO: remove
-
-		// check the return value of commandsHandler since it's a Boolean return value
 		if(!commandsHandler(*this , client))
 		{
 			this->disconnectClient(fd);
@@ -379,7 +392,6 @@ void Server::addChannel(std::string chanName)
 {
 	if (this->isChannelExisting(chanName))
 		return;
-	std::cout << "NEW CHANNEL CREATED" << std::endl;
 	channels.push_back(Channel(*this, chanName));
 }
 

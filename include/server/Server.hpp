@@ -21,12 +21,12 @@ class Client;
 
 class Server {
 
-
 		public:
 		std::vector<Client> clients;
 		std::vector<Channel> channels;
 		Server(const std::string &name, const unsigned int port, const std::string &password);
 		~Server();
+		Server&  operator=(const Server& other);
 		std::string getServerPassword() const { return this->_password; }
 		std::vector<Client> getClientList() const { return this->clients;}
 		std::vector<Channel> getChannelList() const { return this->channels; }
