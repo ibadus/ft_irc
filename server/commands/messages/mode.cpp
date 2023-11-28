@@ -56,7 +56,7 @@ int		handleOperatorChannelMode(Server &server, Client &client, char sign, char m
 	if (!server.isClientExisting(user))
 	{
 		ERR_NOSUCHNICK(client, user);
-		return ;
+		return (0);
 	}
 	if (sign == '+')
 	{
