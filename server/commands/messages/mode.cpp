@@ -48,12 +48,22 @@ int		parseModes(Server &server, Client &client, std::string modes, int modeType,
 
 int		handleOperatorChannelMode(Server &server, Client &client, char sign, char mode, std::string user, std::string chan )
 {
+	if (user.empty())
+	{
+		ERR_NEEDMOREPARAMS(client, "MODE");
+		return (0);
+	}
+	if (!server.isClientExisting(user))
+	{
+		ERR_NOSUCHNICK(client, user);
+		return ;
+	}
 	if (sign == '+')
 	{
 		if (mode == 'o')
 		{
 			server.getChannel(chan).clientOperators.insert(server.getClientByName(user).getID());
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "+o" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + user + " " + chan + " " + "+o" + "\r\n", "");
 			return (0);
 		}
 	}
@@ -62,7 +72,7 @@ int		handleOperatorChannelMode(Server &server, Client &client, char sign, char m
 		if (mode == 'o')
 		{
 			server.getChannel(chan).clientOperators.erase(server.getClientByName(user).getID());
-			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + client.getNickname() + " " + chan + " " + "-o" + "\r\n", "");
+			server.getChannel(chan).sendMessageToClients(client.getIDCMD() + " 324 " + user + " " + chan + " " + "-o" + "\r\n", "");
 			return(0);
 		}
 	}

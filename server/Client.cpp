@@ -27,12 +27,31 @@ std::string Client::getPreviousNick ()
 }
 
 Client& Client::operator=(const Client& other) {
-	if (this != &other) {
-        _fd = other.getFD();
-		_host = other.getHost();
-		_port = other.getPort();
-		_server = other.getServer();
-	}
+
+	 if (this != &other) 
+	 {
+        this->_fd = other._fd;
+        this->_server = other._server;
+        this->ID = other.ID;
+        this->recv_buffer = other.recv_buffer;
+        this->lastPingSent = other.lastPingSent;
+        this->lastPongReceived = other.lastPongReceived;
+        this->_host = other._host;
+        this->_port = other._port;
+        this->_conn_event = other._conn_event;
+        this->_addrinfo = other._addrinfo;
+        this->_nick_history = other._nick_history;
+        this->_nickname = other._nickname;
+        this->_username = other._username;
+        this->_realname = other._realname;
+        this->_client_msg = other._client_msg;
+        this->_operatorMode = other._operatorMode;
+        this->_invisibleMode = other._invisibleMode;
+        this->_online = other._online;
+        this->_hasNickName = other._hasNickName;
+        this->_registered = other._registered;
+        this->_identified = other._identified;
+    }
     return *this;
 }
 
@@ -40,10 +59,6 @@ Client& Client::operator=(const Client& other) {
 void	Client::ping()
 {
 	this->sendMsg("PING " + this->_server.getServerName() + "\r\n" );;
-}
-
-bool Client::operator==(const Client &other)  {
-	return this->_fd == other.getFD() && this->_host == other.getHost() && this->_port == other.getPort();
 }
 
 Client::~Client() {}
@@ -56,6 +71,4 @@ void Client::sendMsg(std::string msg) {
 
 void Client::disconnect() {
 	sendMsg(std::string(TEXT_RED) + "The server is disconnecting you..." + std::string(TEXT_RESET));
-	//close(this->_fd);
-	// std::cout << "Client (" << this->ID << ") disconnected." << std::endl;
 }
