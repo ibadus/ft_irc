@@ -84,6 +84,7 @@ void Server::disconnectClient(const int fd) {
 		it->clientInvited.erase(client->getID());
 
 	}
+	epoll_ctl(this->_epoll_fd, EPOLL_CTL_DEL, client->getFD(), NULL);
 	close(client->getFD());
 	this->clients.erase(client);
 }
