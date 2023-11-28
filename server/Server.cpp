@@ -283,7 +283,6 @@ bool Server::handleNewConnection(struct epoll_event &event) {
 
 bool Server::handleMessages(const int fd) {
 	std::vector<Client>::iterator clientIt = this->getClientByFD(fd);
-	std::cout << "THE ID WE LOOKED FOR : " << fd << std::endl; 
 	if (clientIt == this->clients.end()) {
 		std::cerr << "Error: Client not found" << std::endl;
 		return false;
